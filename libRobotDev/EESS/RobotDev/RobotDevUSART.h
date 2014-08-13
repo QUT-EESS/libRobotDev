@@ -12,7 +12,7 @@
 #define ROBOTDEVUSART_H_
 
 void RDUSARTInit(unsigned int baud){
-	//Baud rate
+	//Baud rate 9600
 	UBRRHn = (unsigned char)(baud>>8);
 	UBRRLn = (unsigned char)(baud);
 	//Enable sender & receiver

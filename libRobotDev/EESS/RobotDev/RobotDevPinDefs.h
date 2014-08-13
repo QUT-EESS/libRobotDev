@@ -17,10 +17,10 @@
 #define SCE3 PC0
 #define RESET3 PC1
 #define DC PC3
-#define MC_PWM1 OC1A
-#define MC_PWM2 OC1B
-#define MC_PWM3 OC3A
-#define MC_PWM4 OC3B
+#define MC_PWM1A OC1A
+#define MC_PWM1B OC1B
+#define MC_PWM3A OC3A
+#define MC_PWM3B OC3B
 #define ADC_VBATT ADC0
 #define SERVO_CTRL1 PE0
 #define SERVO_CTRL2 PE1

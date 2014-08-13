@@ -16,7 +16,7 @@
 #ifndef ROBOTDEVANALOG_H_
 #define ROBOTDEVANALOG_H_
 
-void RDInitADC(unsigned char prescaler){
+void RDAnalogInit(unsigned char prescaler){
 	//Turn on ADC
 	set_bit(ADCSRA, ADEN);
 	//Do not start conversion yet
