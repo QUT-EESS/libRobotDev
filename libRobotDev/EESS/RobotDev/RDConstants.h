@@ -1,13 +1,13 @@
 /* libRobotDev
- * RobotDevConstants.h
+ * RDConstants.h
  * Purpose: Contains all code constants
  * Created: 31/07/2014
- * Author(s): Jerry Luck
+ * Author(s): Jerry Luck, Jeremy Pearson
  */ 
 
 
-#ifndef ROBOTDEVCONSTANTS_H_
-#define ROBOTDEVCONSTANTS_H_
+#ifndef RDCONSTANTS_H_
+#define RDCONSTANTS_H_
 
 
 #define MODE_8_BIT 0
@@ -15,4 +15,4 @@
 
 
 
-#endif /* ROBOTDEVCONSTANTS_H_ */
+#endif // RDCONSTANTS_H_

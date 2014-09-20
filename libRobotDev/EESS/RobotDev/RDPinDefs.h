@@ -1,12 +1,12 @@
 /* libRobotDev
- * PinDefs.h
+ * RDPinDefs.h
  * Purpose: Provides mappings between raw micro pins and desired use
  * Created: 25/07/2014
- * Author(s): Jerry Luck
+ * Author(s): Jerry Luck, Jeremy Pearson
  */ 
 
-#ifndef ROBOTDEVPINDEFS_H_
-#define ROBOTDEVPINDEFS_H_
+#ifndef RDPINDEFS_H_
+#define RDPINDEFS_H_
 
 /* MICRO */
 #define SCLK PB1
@@ -68,4 +68,4 @@
 #define H_ADC6 ADC6
 #define H_ADC7 ADC7
 
-#endif /* ROBOTDEVPINDEFS_H_ */
+#endif // RDPINDEFS_H_
