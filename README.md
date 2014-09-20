@@ -113,7 +113,9 @@ uint16_t RDAnalogRead(unsigned char channel, unsigned char mode) {
 }
 ```
 
-(14) All library function names should start (without the quotes) with "RD".
+(14) All library header filenames should start (without the quotes) with "RD".
+
+(15) All library function names should start (without the quotes) with "RD".
      The first letter of every word after RD in the function name should start
      with a capital-letter.
      Example:  
@@ -123,7 +125,7 @@ void RDPrintHello() {
 }
 ```
 
-(15) All macros, both object-like (macros that DO NOT have parameters) and
+(16) All macros, both object-like (macros that DO NOT have parameters) and
      function-like (macros that DO have parameters), must have identifiers that
      are all uppercase. If the identifier contains multiple words, they should
      be separated with underscores.
@@ -132,7 +134,31 @@ void RDPrintHello() {
 #define NUMBER_OF_SIDES_OF_SQUARE 4
 ```
 
-(16) All definitions of function-like macros must have a set of round-brackets
+(17) The macro that wraps all of the code that's inside of a header file
+     should have an identifier of the form:
+     ```<uppercase form of filename without extension>_H_```
+     For example, the macro that wraps all of the code that's inside of a header
+     file named "RDAnalog.h" should be: ```RDANALOG_H_```.
+
+(18) The ```#ifndef``` directive should always be used, before defining a macro
+     that wraps all of the code that's inside of a header file, to ensure that
+     that macro will only be defined then if it hasn't previously been defined
+     somewhere else.
+
+(19) Whenever the ```#endif``` directive is used, a single-line comment stating
+     the identifier used in the directive that it's ending, should be typed at
+     the right of it, on the same line.
+     For example:  
+```
+#ifndef RDANALOG_H_
+#define RDUTIL_H_
+// Contents of RDUTIL_H_ macro
+// ...
+// ...
+#endif // RDANALOG_H_
+```
+
+(20) All definitions of function-like macros must have a set of round-brackets
      surrounding the replacement-list, as well as a set of round-brackets
      surrounding every individual reference, within the replacement-list, to a
      parameter of the macro. Also, there must be no white-space between the
