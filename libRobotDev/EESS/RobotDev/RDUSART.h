@@ -1,15 +1,15 @@
 /* libRobotDev
- * RobotDevUSART.h
+ * RDUSART.h
  * Purpose: Abstracts all USART functions
  * Created: 27/07/2014 12:21:53 PM
- * Author(s): Jerry Luck
+ * Author(s): Jerry Luck, Jeremy Pearson
  * Status: UNTESTED
  */ 
 
 #include <avr/io.h>
 
-#ifndef ROBOTDEVUSART_H_
-#define ROBOTDEVUSART_H_
+#ifndef RDUSART_H_
+#define RDUSART_H_
 
 void RDUSARTInit(unsigned int baud){
 	//Baud rate 9600
@@ -45,4 +45,4 @@ static void RDUSARTFlush( void ){
 	while( UCSRnA & (1<<RXCn) ) dummy = UDRn;
 }
 
-#endif /* ROBOTDEVUSART_H_ */
+#endif // RDUSART_H_

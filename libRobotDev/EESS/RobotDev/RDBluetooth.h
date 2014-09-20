@@ -1,15 +1,15 @@
 /* libRobotDev
- * RobotDevBluetooth.h
+ * RDBluetooth.h
  * Purpose: Abstracts all bluetooth functions
  * Created: 29/07/2014
- * Author(s): Jerry Luck
+ * Author(s): Jerry Luck, Jeremy Pearson
  * Status: UNTESTED
  */ 
 
-#include "RobotDevUSART.h"
+#include "RDUSART.h"
 
-#ifndef ROBOTDEVBLUETOOTH_H_
-#define ROBOTDEVBLUETOOTH_H_
+#ifndef RDBLUETOOTH_H_
+#define RDBLUETOOTH_H_
 
 void RDBluetoothInit(){
   RDUSARTInit();
@@ -40,4 +40,4 @@ void* RDBluetoothPacket(char header, char* buffer, uint16_t length){
   return packet;
 }
 
-#endif /* ROBOTDEVBLUETOOTH_H_ */
+#endif // RDBLUETOOTH_H_

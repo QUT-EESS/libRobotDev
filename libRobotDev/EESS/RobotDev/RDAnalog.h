@@ -10,12 +10,12 @@
 #include <stdint.h>
 #include <avr/io.h>
 
-#include "RobotDevPinDefs.h"
-#include "RobotDevConstants.h"
-#include "RobotDevUtil.h"
+#include "RDPinDefs.h"
+#include "RDConstants.h"
+#include "RDUtil.h"
 
-#ifndef ROBOTDEVANALOG_H_
-#define ROBOTDEVANALOG_H_
+#ifndef RDANALOG_H_
+#define RDANALOG_H_
 
 /*
  * Initialises the Analog to Digital Converter
@@ -99,5 +99,5 @@ uint16_t RDReadBatteryMillivolts() {
 	return RDAnalogRead(ADC_VBATT);
 }
 
-#endif // ROBOTDEVANALOG_H_
+#endif // RDANALOG_H_
 
