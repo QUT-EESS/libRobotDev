@@ -1,4 +1,5 @@
-/* libRobotDev
+/* 
+ * libRobotDev
  * RDButton.h
  * Purpose: Abstracts all micro button interface functions
  * Created: 25/07/2014 11:52:35 AM
@@ -34,3 +35,4 @@ void RDButtonWaitForRelease(unsigned char pin){
 }
 
 #endif // RDBUTTON_H_
+

@@ -1,4 +1,5 @@
-/* libRobotDev
+/* 
+ * libRobotDev
  * RDBluetooth.h
  * Purpose: Abstracts all bluetooth functions
  * Created: 29/07/2014
@@ -41,3 +42,4 @@ void* RDBluetoothPacket(char header, char* buffer, uint16_t length){
 }
 
 #endif // RDBLUETOOTH_H_
+

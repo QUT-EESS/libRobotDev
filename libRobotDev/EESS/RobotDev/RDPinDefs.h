@@ -1,4 +1,5 @@
-/* libRobotDev
+/* 
+ * libRobotDev
  * RDPinDefs.h
  * Purpose: Provides mappings between raw micro pins and desired use
  * Created: 25/07/2014
@@ -69,3 +70,4 @@
 #define H_ADC7 ADC7
 
 #endif // RDPINDEFS_H_
+

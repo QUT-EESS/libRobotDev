@@ -1,4 +1,5 @@
-/* libRobotDev
+/* 
+ * libRobotDev
  * RDDigital.h
  * Purpose: Abstracts all micro digital functions
  * Created: 25/07/2014
@@ -7,7 +8,6 @@
  */ 
 
 #include <avr/io.h>
-
 #include "RDUtil.h"
 
 #ifndef RDDIGITAL_H_
@@ -45,3 +45,4 @@ unsigned char RDDigitalGetPort(){
 }
 
 #endif // RDDIGITAL_H_
+

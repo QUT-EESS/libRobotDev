@@ -151,8 +151,8 @@ void RDPrintHello() {
      For example:  
 ```
 #ifndef RDANALOG_H_
-#define RDUTIL_H_
-// Contents of RDUTIL_H_ macro
+#define RDANALOG_H_
+// Contents of RDANALOG_H_ macro
 // ...
 // ...
 #endif // RDANALOG_H_

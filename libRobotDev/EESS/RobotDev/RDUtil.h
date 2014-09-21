@@ -1,4 +1,5 @@
-/* libRobotDev
+/* 
+ * libRobotDev
  * RDUtil.h
  * Purpose: Provides utility functions
  * Created: 25/07/2014
@@ -16,3 +17,4 @@
 #define tog_bit(a,p) a ^= (1 << p);
 
 #endif // RDUTIL_H_
+
