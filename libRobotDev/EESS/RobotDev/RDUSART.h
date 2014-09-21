@@ -1,4 +1,5 @@
-/* libRobotDev
+/* 
+ * libRobotDev
  * RDUSART.h
  * Purpose: Abstracts all USART functions
  * Created: 27/07/2014 12:21:53 PM
@@ -46,3 +47,4 @@ static void RDUSARTFlush( void ){
 }
 
 #endif // RDUSART_H_
+

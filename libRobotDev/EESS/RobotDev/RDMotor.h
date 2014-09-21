@@ -1,4 +1,5 @@
-/* libRobotDev
+/* 
+ * libRobotDev
  * RDMotor.h
  * Purpose: Abstracts all motor control functions
  * Created: 25/07/2014
@@ -51,3 +52,4 @@ void RDSetMotorSpeeds(int speed_m1, int speed_m2){
 
 
 #endif // RDMOTOR_H_
+
