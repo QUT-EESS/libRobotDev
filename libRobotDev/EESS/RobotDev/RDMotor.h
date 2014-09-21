@@ -1,15 +1,15 @@
 /* libRobotDev
- * RobotDevMotor.h
+ * RDMotor.h
  * Purpose: Abstracts all motor control functions
  * Created: 25/07/2014
- * Author(s): Jerry Luck
+ * Author(s): Jerry Luck, Jeremy Pearson
  * Status: UNTESTED
  */ 
 
-#include "RobotDevPinDefs.h"
+#include "RDPinDefs.h"
 
-#ifndef ROBOTDEVMOTOR_H_
-#define ROBOTDEVMOTOR_H_
+#ifndef RDMOTOR_H_
+#define RDMOTOR_H_
 
 void RDInitMotors( void ){
   //Set data directions
@@ -50,4 +50,4 @@ void RDSetMotorSpeeds(int speed_m1, int speed_m2){
 }
 
 
-#endif /* ROBOTDEVMOTOR_H_ */
+#endif // RDMOTOR_H_

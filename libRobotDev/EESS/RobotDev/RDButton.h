@@ -1,18 +1,18 @@
 /* libRobotDev
- * RobotDevButton.h
+ * RDButton.h
  * Purpose: Abstracts all micro button interface functions
  * Created: 25/07/2014 11:52:35 AM
- * Author(s): Jerry Luck
+ * Author(s): Jerry Luck, Jeremy Pearson
  * Status: UNTESTED
  */ 
 
 #include <avr/io.h>
 
-#include "RobotDevPinDefs.h"
-#include "RobotDevUtil.h"
+#include "RDPinDefs.h"
+#include "RDUtil.h"
 
-#ifndef ROBOTDEVBUTTON_H_
-#define ROBOTDEVBUTTON_H_
+#ifndef RDBUTTON_H_
+#define RDBUTTON_H_
 
 void RDSetupButton(unsigned char pin){
 	clr_bit(DDRF, pin);
@@ -33,4 +33,4 @@ void RDButtonWaitForRelease(unsigned char pin){
 	while(get_bit(PORF, pin));
 }
 
-#endif /* ROBOTDEVBUTTON_H_ */
+#endif // RDBUTTON_H_

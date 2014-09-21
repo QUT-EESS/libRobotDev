@@ -1,17 +1,17 @@
 /* libRobotDev
- * RobotDevDigital.h
+ * RDDigital.h
  * Purpose: Abstracts all micro digital functions
  * Created: 25/07/2014
- * Author(s): Jerry Luck
+ * Author(s): Jerry Luck, Jeremy Pearson
  * Status: UNTESTED
  */ 
 
 #include <avr/io.h>
 
-#include "RobotDevUtil.h"
+#include "RDUtil.h"
 
-#ifndef ROBOTDEVDIGITAL_H_
-#define ROBOTDEVDIGITAL_H_
+#ifndef RDDIGITAL_H_
+#define RDDIGITAL_H_
 
 void RDDigitalSetOutput(unsigned char pin){
 	set_bit(DDRF, pin);
@@ -44,4 +44,4 @@ unsigned char RDDigitalGetPort(){
 	return PORTF;
 }
 
-#endif /* ROBOTDEVDIGITAL_H_ */
+#endif // RDDIGITAL_H_
