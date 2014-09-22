@@ -77,11 +77,8 @@ if (x == 'a') {
 (11) All library functions must be defined in header files. Header files are files
     that end (without the quotes) with ".h".
 
-(12) All library functions should just be defined, never declared then defined:  
+(12) All library functions should just be defined, there is no need for a prototype:  
 ```
-// Example of a function declaration:
-uint16_t RDAddTwoNumbers(int x, int y); // DON'T DO THIS!
-
 // Example of a function definition:
 uint16_t RDAddTwoNumbers(int x, int y) {
     return (x + y);
