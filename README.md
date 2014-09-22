@@ -110,17 +110,18 @@ uint16_t RDAnalogRead(unsigned char channel, unsigned char mode) {
 }
 ```
 
-(14) All library header filenames should start (without the quotes) with "RD".
-
-(15) All library function names should start (without the quotes) with "RD".
-     The first letter of every word after RD in the function name should start
+(14) All header filenames and function names should start (without the quotes)
+     with "RD". The first letter of every word after RD in the name should start
      with a capital-letter.
-     Example:  
+     Example of header filename: ```RDPinDefs.h```.
+     Example of function with an acceptable name:  
 ```
 void RDPrintHello() {
     printf("Hello.\n");
 }
 ```
+
+(15) All header files should end with an empty line.
 
 (16) All macros, both object-like (macros that DO NOT have parameters) and
      function-like (macros that DO have parameters), must have identifiers that
