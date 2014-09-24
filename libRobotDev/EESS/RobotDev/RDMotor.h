@@ -8,6 +8,7 @@
  */
  
 #include <stdint.h>
+#include <avr/interrupt.h>
 #include "RDPinDefs.h"
 #include "RDUtil.h"
  
@@ -15,9 +16,13 @@
 #define RDMOTOR_H_
 
 #define M1_OCRA OCR1A
-#define M1_OCRB OCR1B
+#define M1_OCRB OCR1B 
 #define M2_OCRA OCR3A
 #define M2_OCRB OCR3B
+
+ISR(TIMER1_COMPA_vect) {
+	
+}
 
 /*
  * Initialises Timer1 and Timer3.
@@ -48,6 +53,7 @@ void RDTimerInit(void) {
  *     An equivalent value on a scale of 0-255.
  */
 uint8_t RDDutyCycle(uint8_t percent) {
+	// Use casting to get rid of * 10 code.
 	return (percent * 10 / 100) * 25.5;
 }
 
@@ -82,7 +88,7 @@ void RDMotorInit(void) {
  */
 void RDSetM1Speed(uint8_t speed) {
 	M1_OCRA = (speed < 0) ? 0:RDDutyCycle(speed);
-	M1_OCRB = (speed < 0) ? RDDutyCycle(speed):0;
+	M1_OCRB = (speed < 0) ? -RDDutyCycle(speed):0;
 }
 
 /*
@@ -95,7 +101,7 @@ void RDSetM1Speed(uint8_t speed) {
  */
 void RDSetM2Speed(uint8_t speed) {
 	M2_OCRA = (speed < 0) ? 0:RDDutyCycle(speed);
-	M2_OCRB = (speed < 0) ? RDDutyCycle(speed):0;
+	M2_OCRB = (speed < 0) ? -RDDutyCycle(speed):0;
 }
 
 /*
@@ -113,9 +119,14 @@ void RDSetM1Brake(void) {
  *
  * @return void
  */
-void RDSetM2Brake(void) {
+void RDSetM2Brake(void) { 
 	M1_OCRA = RDDutyCycle(100);
 	M1_OCRB = RDDutyCycle(100);
+}
+
+void RDM1Forward(uint8_t speed, uint8_t time) {
+	RDSetM2Speed(speed);
+	
 }
 
 #endif //RDMOTOR_H_
