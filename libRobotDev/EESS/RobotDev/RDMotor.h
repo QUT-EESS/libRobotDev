@@ -20,10 +20,6 @@
 #define M2_OCRA OCR3A
 #define M2_OCRB OCR3B
 
-ISR(TIMER1_COMPA_vect) {
-	
-}
-
 /*
  * Initialises Timer1 and Timer3.
  * 
@@ -122,11 +118,6 @@ void RDSetM1Brake(void) {
 void RDSetM2Brake(void) { 
 	M1_OCRA = RDDutyCycle(100);
 	M1_OCRB = RDDutyCycle(100);
-}
-
-void RDM1Forward(uint8_t speed, uint8_t time) {
-	RDSetM2Speed(speed);
-	
 }
 
 #endif //RDMOTOR_H_
