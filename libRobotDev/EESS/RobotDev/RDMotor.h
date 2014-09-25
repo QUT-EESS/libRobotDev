@@ -49,8 +49,7 @@ void RDTimerInit(void) {
  *     An equivalent value on a scale of 0-255.
  */
 uint8_t RDDutyCycle(uint8_t percent) {
-	// Use casting to get rid of * 10 code.
-	return (percent * 10 / 100) * 25.5;
+	return (percent * 255) / 100;
 }
 
 /*
