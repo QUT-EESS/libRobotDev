@@ -72,7 +72,6 @@ uint16_t RDAnalogRead(unsigned char channel, unsigned char mode) {
     }
 	set_bit(ADCSRA, ADSC); // Start conversion
 	while (get_bit(ADCSRA, ADSC)) { ; } // Wait for conversion to finish
-
     // Return value mode-specific
 	if (mode == MODE_8_BIT) {
 		return ADCH;
@@ -80,6 +79,32 @@ uint16_t RDAnalogRead(unsigned char channel, unsigned char mode) {
 		return ADC;
     }
 }
+
+/*
+ * Enables/Disables auto trigger source in free running mode. I this mode
+ * the ADC will constantly sample and update the ADC register.
+ * 
+ * @param unsigned char channel
+ *     The pin that should be read (0 - 7).
+ * 
+ * @param unsigned char enable
+ *     Can be either ON or OFF.
+ *     if enable == ON, the ADC will be enabled in free running mode.
+ *     if enable == OFF, auto trigger will be disabled and the ADC will stop
+ * 
+ * @return uint16_t
+ *     Digital representation of analog signal
+*/
+void RDAnalogContRead(unsigned char channel, unsigned char enable) {
+    ADMUX |= channel;
+    SET_BIT(ADCSRA, ADATE); // Auto trigger enable, ADTS bits 0 for free running mode
+    if (enable) {
+        SET_BIT(ADCSRA, ADSC); // Start ADC conversions
+    } else {
+        CLEAR_BIT(ADCSRA, ADATE); // Disable auto trigger (stops conversions)
+    }
+}
+
 
 /*
  * Reads an analog signal [samples] number of times and returns the average of
