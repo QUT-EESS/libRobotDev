@@ -81,19 +81,18 @@ uint16_t RDAnalogRead(unsigned char channel, unsigned char mode) {
 }
 
 /*
- * Enables/Disables auto trigger source in free running mode. I this mode
+ * Enables/Disables auto trigger source in free running mode. In this mode
  * the ADC will constantly sample and update the ADC register.
  * 
  * @param unsigned char channel
  *     The pin that should be read (0 - 7).
  * 
  * @param unsigned char enable
- *     Can be either ON or OFF.
- *     if enable == ON, the ADC will be enabled in free running mode.
+ *     Can be either ON or OFF
+ *     if enable == ON, the ADC will be enabled in free running mode
  *     if enable == OFF, auto trigger will be disabled and the ADC will stop
- * 
- * @return uint16_t
- *     Digital representation of analog signal
+ *
+ * @return void
 */
 void RDAnalogContRead(unsigned char channel, unsigned char enable) {
     ADMUX |= channel;
@@ -105,7 +104,6 @@ void RDAnalogContRead(unsigned char channel, unsigned char enable) {
     }
 }
 
-
 /*
  * Reads an analog signal [samples] number of times and returns the average of
  * the digital approximations, rounded down to the nearest integer
@@ -116,7 +114,7 @@ void RDAnalogContRead(unsigned char channel, unsigned char enable) {
  * @param uint16_t samples
  *     The number of times the pin should be read
  * 
- * @returns uint16_t
+ * @return uint16_t
  *     Average value of digital approximations of analog signal rounded down to
  *     the nearest integer
  */
