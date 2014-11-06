@@ -162,16 +162,23 @@ static inline void RDBluetoothEnterConfigMode(void) {
     // Enable control pins
     DDRB |= BTPWR | KEYPIN;
     
+<<<<<<< HEAD
+=======
 	/* NOTE:
 	 *		When using Bolt revision 1.2a (blue mask) comment
 	 *		out the BTPWR on/off lines.
 	 */
 	
+>>>>>>> origin/Blake
     // Place Bluetooth in config mode
     PORTB |= BTPWR;			// Turn off module
     PORTB |= KEYPIN;		// Pull KEY high
     
+<<<<<<< HEAD
+    _delay_ms(1000);
+=======
     _delay_ms(100);
+>>>>>>> origin/Blake
     PORTB &= ~BTPWR;		// Turn on module
 }
 
@@ -184,11 +191,14 @@ static inline void RDBluetoothEnterConfigMode(void) {
  */
 static inline void RDBluetoothRestart(void) {
     
+<<<<<<< HEAD
+=======
 	/* NOTE:
 	 *		When using Bolt revision 1.2a (blue mask) comment
 	 *		out the BTPWR on/off lines.
 	 */
 	
+>>>>>>> origin/Blake
     PORTB &= ~KEYPIN;		// Pull KEY low
     PORTB |= BTPWR;			// Turn off module
     _delay_ms(100);
