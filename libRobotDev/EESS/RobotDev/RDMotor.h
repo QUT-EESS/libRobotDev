@@ -101,7 +101,7 @@ void RDSetM2Speed(uint8_t speed) {
 
 /*
  * Sets Motor1 to brake.
- *
+ * ## SHAUN - THIS MAY BE BUGGY ##
  * @return void
  */
 void RDSetM1Brake(void) {
@@ -111,7 +111,7 @@ void RDSetM1Brake(void) {
 
 /*
  * Sets Motor2 to brake.
- *
+ * ## SHAUN - THIS MAY BE BUGGY ##
  * @return void
  */
 void RDSetM2Brake(void) { 

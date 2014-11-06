@@ -47,10 +47,10 @@
 #define OB_LED2 PC4
 
 /* MOTOR CTRL */
-#define MCTRL_IN1 MC_PWM1
-#define MCTRL_IN2 MC_PWM2
-#define MCTRL_IN3 MC_PWM3
-#define MCTRL_IN4 MC_PWM4
+#define MCTRL_IN1 MC_PWM1A
+#define MCTRL_IN2 MC_PWM1B
+#define MCTRL_IN3 MC_PWM3A
+#define MCTRL_IN4 MC_PWM3B
 
 /* LCD */
 #define H_LCD6 SCE3
