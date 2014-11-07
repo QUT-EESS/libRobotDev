@@ -76,12 +76,12 @@ void RDMotorInit(void) {
 /*
  * Sets Motor1 speed.
  * 
- * @param uint8_t speed
+ * @param int8_t speed
  *     The speed of the motor as percentage. Negative values for reverse.
  *
  * @return void
  */
-void RDSetM1Speed(uint8_t speed) {
+void RDSetM1Speed(int8_t speed) {
 	M1_OCRA = (speed < 0) ? 0:RDDutyCycle(speed);
 	M1_OCRB = (speed < 0) ? -RDDutyCycle(speed):0;
 }
@@ -89,12 +89,12 @@ void RDSetM1Speed(uint8_t speed) {
 /*
  * Sets Motor2 speed.
  * 
- * @param uint8_t speed
+ * @param int8_t speed
  *     The speed of the motor as percentage. Negative values for reverse.
  *
  * @return void
  */
-void RDSetM2Speed(uint8_t speed) {
+void RDSetM2Speed(int8_t speed) {
 	M2_OCRA = (speed < 0) ? 0:RDDutyCycle(speed);
 	M2_OCRB = (speed < 0) ? -RDDutyCycle(speed):0;
 }
