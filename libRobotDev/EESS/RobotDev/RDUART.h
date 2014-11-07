@@ -193,7 +193,11 @@ void RDUARTPutsNoNull(char * data)
 /* Put a byte in the output buffer and turn on the transmit interrupt
  *
  * @return uint8_t data
+<<<<<<< HEAD
  *		The byte of data to be transmitted via UART
+=======
+ *		The amount of data bytes waiting to be received.
+>>>>>>> origin/Blake
  *
  */
 uint8_t RDUARTAvailable(void)
