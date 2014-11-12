@@ -8,7 +8,6 @@
  */
  
 #include <stdint.h>
-#include <avr/interrupt.h>
 #include "RDPinDefs.h"
 #include "RDUtil.h"
  
@@ -28,28 +27,30 @@
 void RDTimerInit(void) {
 	set_bit(TCCR1A, COM1A1); // Compare Match A: Clear on match, Set at TOP.
 	set_bit(TCCR1A, COM1B1); // Compare Match B: Clear on match, Set at TOP.
-	set_bit(TCCR1B, WGM12); set_bit(TCCR1A, WGM00); // Set 8bit fast PWM.
-	set_bit(TCCR1B, CS11); // /8 prescaler.
+	set_bit(TCCR1B, WGM13); set_bit(TCCR1B, WGM12); set_bit(TCCR1A, WGM11); // Set 16bit fast PWM. TOP at ICR.
+	set_bit(TCCR1B, CS11); set_bit(TCCR1B, CS10); // /64 prescaler.
+	ICR1 = 0x0FFF; // Set TOP value for 12bit resolution.
 	TCNT1 = 0x00; // Set counter to 0.
 
 	set_bit(TCCR3A, COM3A1); // Compare Match A: Clear on match, Set at TOP.
 	set_bit(TCCR3A, COM3B1); // Compare Match B: Clear on match, Set at TOP.
-	set_bit(TCCR3B, WGM32); set_bit(TCCR3A, WGM30); // Set 8bit fast PWM.
-	set_bit(TCCR3B, CS31); // /8 prescaler.
+	set_bit(TCCR3B, WGM33); set_bit(TCCR3B, WGM32); set_bit(TCCR3A, WGM31); // Set 16bit fast PWM. TOP at ICR.
+	set_bit(TCCR3B, CS31); set_bit(TCCR3B, CS30); // /64 prescaler.
+	ICR3 = 0x0FFF; // Set TOP value for 12bit resolution.
 	TCNT3 = 0x00; // Set counter to 0.
 }
 
 /*
- * Converts a value from 0-100 to a value from 0-255.
+ * Converts a double from range 0-100 to a int from 0-4095.
  * 
- * @param uint8_t percent
+ * @param double percent
  *     A value from 0-100.
  * 
- * @return uint8_t
- *     An equivalent value on a scale of 0-255.
+ * @return uint16_t
+ *     An equivalent value on a scale of 0-4095.
  */
-uint8_t RDDutyCycle(uint8_t percent) {
-	return (percent * 255) / 100;
+uint16_t RDDutyCycle(double percent) {
+	return (uint16_t)((percent * 4095) / 100);
 }
 
 /*
@@ -76,12 +77,12 @@ void RDMotorInit(void) {
 /*
  * Sets Motor1 speed.
  * 
- * @param int8_t speed
+ * @param double speed
  *     The speed of the motor as percentage. Negative values for reverse.
  *
  * @return void
  */
-void RDSetM1Speed(int8_t speed) {
+void RDSetM1Speed(double speed) {
 	M1_OCRA = (speed < 0) ? 0:RDDutyCycle(speed);
 	M1_OCRB = (speed < 0) ? -RDDutyCycle(speed):0;
 }
@@ -89,19 +90,19 @@ void RDSetM1Speed(int8_t speed) {
 /*
  * Sets Motor2 speed.
  * 
- * @param int8_t speed
+ * @param double speed
  *     The speed of the motor as percentage. Negative values for reverse.
  *
  * @return void
  */
-void RDSetM2Speed(int8_t speed) {
+void RDSetM2Speed(double speed) {
 	M2_OCRA = (speed < 0) ? 0:RDDutyCycle(speed);
 	M2_OCRB = (speed < 0) ? -RDDutyCycle(speed):0;
 }
 
 /*
  * Sets Motor1 to brake.
- * ## SHAUN - THIS MAY BE BUGGY ##
+ * ## SHAUN - THIS MAY BE BUGGY ## POSSIBLY FIXED
  * @return void
  */
 void RDSetM1Brake(void) {
@@ -111,12 +112,12 @@ void RDSetM1Brake(void) {
 
 /*
  * Sets Motor2 to brake.
- * ## SHAUN - THIS MAY BE BUGGY ##
+ * ## SHAUN - THIS MAY BE BUGGY ## POSSIBLY FIXED
  * @return void
  */
 void RDSetM2Brake(void) { 
-	M1_OCRA = RDDutyCycle(100);
-	M1_OCRB = RDDutyCycle(100);
+	M2_OCRA = RDDutyCycle(100);
+	M2_OCRB = RDDutyCycle(100);
 }
 
 #endif //RDMOTOR_H_
