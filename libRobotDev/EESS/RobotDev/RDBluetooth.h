@@ -77,7 +77,7 @@ static inline void RDBluetoothSendAT(void) {
     
     char *preamble = "AT";          // Preamble
     RDUARTPutsNoNull(preamble);	// Transmit
-    _delay_ms(750);
+    _delay_ms(200);
 }
 
 /*
@@ -162,11 +162,6 @@ static inline void RDBluetoothEnterConfigMode(void) {
     // Enable control pins
     DDRB |= BTPWR | KEYPIN;
     
-	/* NOTE:
-	 *		When using Bolt revision 1.2a (blue mask) comment
-	 *		out the BTPWR on/off lines.
-	 */
-	
     // Place Bluetooth in config mode
     PORTB |= BTPWR;			// Turn off module
     PORTB |= KEYPIN;		// Pull KEY high
@@ -184,11 +179,6 @@ static inline void RDBluetoothEnterConfigMode(void) {
  */
 static inline void RDBluetoothRestart(void) {
     
-	/* NOTE:
-	 *		When using Bolt revision 1.2a (blue mask) comment
-	 *		out the BTPWR on/off lines.
-	 */
-	
     PORTB &= ~KEYPIN;		// Pull KEY low
     PORTB |= BTPWR;			// Turn off module
     _delay_ms(100);
@@ -205,11 +195,16 @@ static inline void RDBluetoothRestart(void) {
  *      Corresponding UL baud rate. e.g. char "4" -> 9600UL
  */
 static unsigned long RDBluetoothReturnBaudUL(char baud) {
+
+    // Convert character to index value (0 : 12)
+    uint8_t baudVal = (baud < 'A') ? baud - '0' : (baud - 'A') + 10;
     
-    unsigned long bauds[] = {1200,2400,4800,9600,19200,38400,57600,
-                             115200,230400,460800,912600,1382400,};
-    
-    return (baud < 'A') ? bauds[baud - '1'] : bauds[(baud - 'A') + 9];
+    /*
+     * 1 - 6  : 1200 * 2^(baudVal - 1)
+     * 7 - 11 : 1200 * 2^(baudVal - 1) - 19200 * 2^(baudVal - 7)
+     * 12     : 1382400
+     */
+    return (baudVal >= 12) ? 1382400 : 1200 * (1 << (baudVal - 1)) - (baudVal >= 7) * ( 19200 * (1 << (baudVal - 7)) );
 }
 
 /*
@@ -224,7 +219,7 @@ static inline void RDBluetoothGetBaud(void) {
     char* baudSweep = "123456789ABC";
     uint8_t i = 0;
     
-    RDBluetoothEnterConfigMode();
+    //RDBluetoothEnterConfigMode();
             
     for (i = 0; baudSweep[i] != '\0'; ++i) {
     
@@ -236,7 +231,7 @@ static inline void RDBluetoothGetBaud(void) {
         if (RDBluetoothCheckOk()) break;    // Check response
     }
     
-    RDBluetoothRestart();
+    //RDBluetoothRestart();
 }
 
 /*
@@ -282,7 +277,7 @@ unsigned long RDBluetoothInit(void) {
  *      "8"			115200
  *      "9"			230400
  *      "A"			460800
- *      "B"			912600
+ *      "B"			921600
  *      "C"			1382400
  *
  * @return void
@@ -290,7 +285,8 @@ unsigned long RDBluetoothInit(void) {
 void RDBluetoothConfig(char *name, char* pin, char baud) {
     
     RDBluetoothEnterConfigMode();
-        
+    
+    _delay_ms(750);    
     // Configure
     RDBluetoothSetName(name);	// Set name
     RDBluetoothSetPin(pin);		// Set pin
