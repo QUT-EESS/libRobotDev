@@ -84,7 +84,7 @@ void RDMotorInit(void) {
  */
 void RDSetM1Speed(double speed) {
 	M1_OCRA = (speed < 0) ? 0:RDDutyCycle(speed);
-	M1_OCRB = (speed < 0) ? -RDDutyCycle(speed):0;
+	M1_OCRB = (speed < 0) ? RDDutyCycle(-speed):0;
 }
 
 /*
@@ -97,7 +97,7 @@ void RDSetM1Speed(double speed) {
  */
 void RDSetM2Speed(double speed) {
 	M2_OCRA = (speed < 0) ? 0:RDDutyCycle(speed);
-	M2_OCRB = (speed < 0) ? -RDDutyCycle(speed):0;
+	M2_OCRB = (speed < 0) ? RDDutyCycle(-speed):0;
 }
 
 /*
