@@ -165,6 +165,8 @@ uint8_t RDUARTGetc(void)
  *
  * @param char *data
  *     A null-terminated string to be transmitted via UART.
+ *  
+ * @return void
  *
  */
 void RDUARTPuts(char *data)
@@ -181,6 +183,8 @@ void RDUARTPuts(char *data)
  *
  * @param char *data
  *     A null-terminated string to be transmitted via UART
+ * 
+ * @return void
  *
  */
 void RDUARTPutsNoNull(char *data)
@@ -230,7 +234,7 @@ ISR(USART1_UDRE_vect)
 }
 
 /*
- * This interrupt will load every byte of data received via UART into the data buffer.
+ * This interrupt service routine will load every byte of data received via UART into the data buffer.
  * Once the buffer is filled data received will no longer be loaded into the buffer.
  */
 ISR(USART1_RX_vect)
