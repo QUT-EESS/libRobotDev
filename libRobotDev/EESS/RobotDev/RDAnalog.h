@@ -32,12 +32,12 @@
 #define MODE_10_BIT 1
 
 /*
- * Initialises the Analog to Digital Converter
+ * Initialises the Analog to Digital Converter.
  * 
  * @param unsigned char prescaler
  *     Can be set using macros defined in RDAnalog.h for CPUclk 16Mhz
  *     More info, see Section 26.9.2 | Page 324 | "Bits 2:0 - ADPS2:0
- *     ADC Prescaler Select Bits" of AT90USB1286 Data Sheet
+ *     ADC Prescaler Select Bits" of AT90USB1286 Data Sheet.
  * 
  * @return void
 */
@@ -52,21 +52,21 @@ void RDAnalogInit(unsigned char prescaler) {
 }
 
 /*
- * Reads an analog signal
+ * Reads an analog signal.
  * 
  * @param unsigned char channel
- *     The pin that should be read (0 - 7)
+ *     The pin that should be read (0 - 7).
  * 
  * @param unsigned char mode
  *     The mode can be MODE_8_BIT or MODE_10_BIT
- *     if mode == MODE_8_BIT, the resolution will be 256
- *     if mode == MODE_10_BIT, the resolution will be 1024
+ *     if mode == MODE_8_BIT, the resolution will be 256.
+ *     if mode == MODE_10_BIT, the resolution will be 1024.
  * 
  * @return uint16_t
- *     Digital representation of analog signal
+ *     Digital representation of analog signal.
 */
 uint16_t RDAnalogRead(unsigned char channel, unsigned char mode) {
-	ADMUX |= channel; // Channel to be read.
+	ADMUX |= channel; // Channel to be read
 	if (mode == MODE_8_BIT) {
 		set_bit(ADMUX, ADLAR); // Left align if 8-bit mode
     } else {
@@ -87,19 +87,19 @@ uint16_t RDAnalogRead(unsigned char channel, unsigned char mode) {
  * Reads an analog signal and scales the returned value to a value from 0 to multiplier.
  * 
  * @param unsigned char channel
- *     The pin that should be read (0 - 7)
+ *     The pin that should be read (0 - 7).
  * 
  * @param unsigned char mode
  *     The mode can be MODE_8_BIT or MODE_10_BIT
- *     if mode == MODE_8_BIT, the resolution will be 256
- *     if mode == MODE_10_BIT, the resolution will be 1024
+ *     if mode == MODE_8_BIT, the resolution will be 256.
+ *     if mode == MODE_10_BIT, the resolution will be 1024.
  *
  * @param uint16_t multiplier
- *     The maximum value you want to scale the read value to
- *     Eg. multiplier of 100 will return a value from 0 to 100
+ *     The maximum value you want to scale the read value to,
+ *     Eg. multiplier of 100 will return a value from 0 to 100.
  * 
  * @return uint16_t
- *     Scaled representation of analog signal
+ *     Scaled representation of analog signal.
 */
 uint16_t RDAnalogReadToPerc(unsigned char channel, unsigned char mode, uint32_t multiplier) {
 	uint32_t scaledRead;
@@ -134,9 +134,9 @@ uint16_t RDAnalogReadBattV() {
  *     The pin that should be read (0 - 7)
  * 
  * @param unsigned char enable
- *     Can be either ON or OFF
- *     if enable == ON, the ADC will be enabled in free running mode
- *     if enable == OFF, auto trigger will be disabled and the ADC will stop
+ *     Can be either ON or OFF.
+ *     if enable == ON, the ADC will be enabled in free running mode.
+ *     if enable == OFF, auto trigger will be disabled and the ADC will stop.
  *
  * @return void
 */
@@ -152,17 +152,17 @@ void RDAnalogReadCont(unsigned char channel, unsigned char enable) {
 
 /*
  * Reads an analog signal [samples] number of times and returns the average of
- * the digital approximations, rounded down to the nearest integer
+ * the digital approximations, rounded down to the nearest integer.
  *
  * @param unsigned char channel
- *     The pin that should be read
+ *     The pin that should be read.
  * 
  * @param uint16_t samples
- *     The number of times the pin should be read
+ *     The number of times the pin should be read.
  * 
  * @return uint16_t
  *     Average value of digital approximations of analog signal rounded down to
- *     the nearest integer
+ *     the nearest integer.
  */
 uint16_t RDAnalogReadAvg(unsigned char channel, unsigned char mode, uint16_t samples) {
 	uint32_t sum = 0;

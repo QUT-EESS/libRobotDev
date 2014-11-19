@@ -22,6 +22,8 @@
 /*
  * Initialises Timer1 and Timer3.
  * 
+ * @param void
+ * 
  * @return void
  */
 void RDTimerInit(void) {
@@ -56,6 +58,8 @@ uint16_t RDDutyCycle(double percent) {
 /*
  * Initialise motors.
  *
+ * @param void
+ * 
  * @return void
  */
 void RDMotorInit(void) {
@@ -103,6 +107,8 @@ void RDSetM2Speed(double speed) {
 /*
  * Sets Motor1 to brake.
  * ## SHAUN - THIS MAY BE BUGGY ## POSSIBLY FIXED
+ * @param void
+ * 
  * @return void
  */
 void RDSetM1Brake(void) {
@@ -113,6 +119,8 @@ void RDSetM1Brake(void) {
 /*
  * Sets Motor2 to brake.
  * ## SHAUN - THIS MAY BE BUGGY ## POSSIBLY FIXED
+ * @param void
+ * 
  * @return void
  */
 void RDSetM2Brake(void) { 
