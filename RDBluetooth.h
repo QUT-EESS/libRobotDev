@@ -14,8 +14,10 @@
 #ifndef RDBLUETOOTH_H_
 #define RDBLUETOOTH_H_
 
-#define	KEYPIN	(1 << PB4)
-#define	BTPWR	(1 << PB5)
+#define	KEYPIN	(1 << PE5)
+#define	BTPWR	(1 << PE4)
+#define BTDDR DDRE
+#define BTPORT PORTE
 
 static volatile char bluetoothBaud = 0;
 
@@ -159,14 +161,14 @@ static inline uint8_t RDBluetoothCheckOk(void) {
 static inline void RDBluetoothEnterConfigMode(void) {
     
     // Enable control pins
-    DDRB |= BTPWR | KEYPIN;
+    BTDDR |= BTPWR | KEYPIN;
     
     // Place Bluetooth in config mode
-    PORTB |= BTPWR;			// Turn off module
-    PORTB |= KEYPIN;		// Pull KEY high
+    BTPORT |= BTPWR;			// Turn off module
+    BTPORT |= KEYPIN;		// Pull KEY high
     
     _delay_ms(100);
-    PORTB &= ~BTPWR;		// Turn on module
+    BTPORT &= ~BTPWR;		// Turn on module
 }
 
 /* UNTESTED
@@ -177,10 +179,10 @@ static inline void RDBluetoothEnterConfigMode(void) {
  * @return void
  */
 static inline void RDBluetoothRestart(void) {
-    PORTB &= ~KEYPIN;		// Pull KEY low
-    PORTB |= BTPWR;			// Turn off module
+    BTPORT &= ~KEYPIN;		// Pull KEY low
+    BTPORT |= BTPWR;			// Turn off module
     _delay_ms(100);
-    PORTB &= ~BTPWR;		// Turn on module
+    BTPORT &= ~BTPWR;		// Turn on module
 }
 
 /*
@@ -287,21 +289,4 @@ void RDBluetoothConfig(char *name, char* pin, char baud) {
     bluetoothBaud = baud;		// Update baud rate
     RDUARTInit( RDBluetoothReturnBaudUL(bluetoothBaud) );	// Reinitialise UART with new baud
 }
-
-//void* RDBluetoothPacket(char header, char* buffer, uint16_t length) {
-    /* Dynamic Packet struct
-     * char 	header
-     * uint16_t 	data_len
- * char* 	data
-     */
-    //Allocate memory
-//	void* packet = (void*)malloc(sizeof(header)+length);
-//	//Copy data into malloc
-//	memcpy(packet, header, sizeof(header));			// header
-//	memcpy(packet+sizeof(header), length, sizeof(length));	// data_len
-//	memcpy(packet+sizeof(header)+sizeof(length), buffer, length);	// data
-    
-//	return packet;
-//}
-
 #endif // RDBLUETOOTH_H_
