@@ -106,7 +106,6 @@ void RDSetM2Speed(double speed) {
 
 /*
  * Sets Motor1 to brake.
- * ## SHAUN - THIS MAY BE BUGGY ## POSSIBLY FIXED
  * @param void
  * 
  * @return void
@@ -118,7 +117,6 @@ void RDSetM1Brake(void) {
 
 /*
  * Sets Motor2 to brake.
- * ## SHAUN - THIS MAY BE BUGGY ## POSSIBLY FIXED
  * @param void
  * 
  * @return void
