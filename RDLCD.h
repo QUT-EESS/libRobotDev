@@ -22,6 +22,7 @@
 #define RDLCD_FONT_W 5
 
 
+
 // LCD pins
 #define RDLCD_CS    PC0
 #define RDLCD_RST   PC1
@@ -56,6 +57,16 @@
 #define RDLCD_CNTR_Y    RDLCD_H / 2
 #define RDLCD_ROW_H     8
 #define RDLCD_DEFAULT_CONTRAST	0x3F
+#define RDLCD_HIGH_CONTRAST 0x4F
+
+void RDLCDWrite(uint8_t byte, uint8_t dc) {
+
+	// Set data/command mode
+	RDLCD_PORT = (RDLCD_PORT & ~(1 << RDLCD_DC)) | (dc << RDLCD_DC);
+	
+	// Write byte to SPI
+	RDSPIRWByte(byte, 5, &RDLCD_PORT, RDLCD_CS);
+}
 
 void RDLCDInit(void) {
 	
@@ -74,7 +85,7 @@ void RDLCDInit(void) {
     RDLCDWrite(LCD_EXT_FN, RDLCD_C);
     
     // Set default contrast
-    RDLCDWrite(LCD_SET_CONTRAST | RDLCD_DEFAULT_CONTRAST, RDLCD_C);
+    RDLCDWrite(LCD_SET_CONTRAST | RDLCD_HIGH_CONTRAST, RDLCD_C);
     
     // Use basic instruction set
     RDLCDWrite(LCD_BSC_FN, RDLCD_C);
@@ -86,15 +97,6 @@ void RDLCDInit(void) {
     RDLCDWrite(LCD_SET_X | 0x00, RDLCD_C);
     RDLCDWrite(LCD_SET_Y | 0x00, RDLCD_C);
     
-}
-
-void RDLCDWrite(uint8_t byte, uint8_t dc) {
-
-	// Set data/command mode
-	RDLCD_PORT = (RDLCD_PORT & ~(1 << RDLCD_DC)) | (dc << RDLCD_DC);
-	
-	// Write byte to SPI
-	RDSPIRWByte(byte, 0, &RDLCD_PORT, RDLCD_CS);
 }
 
 void RDLCDClear(void) {
@@ -111,7 +113,7 @@ void RDLCDCharacter(unsigned char character) {
     
     for (int i = 0; i < RDLCD_FONT_W; i++)
     {
-        RDLCDWrite(ASCII[character - 0x20][i]);
+        RDLCDWrite(ASCII[character - 0x20][i], RDLCD_D);
     }
     
     RDLCDWrite(0x00, RDLCD_D);
@@ -121,7 +123,7 @@ void RDLCDString(unsigned char *characters) {
     
     while (*characters != '\0')
     {
-        RDlCDChacaracter(*(characters++));
+        RDLCDCharacter(*(characters++));
     }
 }
 
@@ -130,8 +132,8 @@ void RDLCDPosition(unsigned char x, unsigned char y) {
     
     if((x < RDLCD_W) & (y < (RDLCD_ROW_H)))
     {
-        RDLCDWrite(LCD_SET_X | x, RDLCD_D);
-        RDLCDWrite(LCD_SET_Y | y, RDLCD_D);
+        RDLCDWrite(LCD_SET_X | x, RDLCD_C);
+        RDLCDWrite(LCD_SET_Y | y, RDLCD_C);
     }
 }
 
