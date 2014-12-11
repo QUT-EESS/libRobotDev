@@ -7,9 +7,16 @@
  * Status: TESTED <Jerry>
  */ 
 
-#ifndef ASCIIFONT_H_
-#define ASCIIFONT_H_
+#ifndef RDASCIIFONT_H_
+/**
+ * Robot Development ASCII Font Header.
+ */
+#define RDASCIIFONT_H_
 
+/*
+ * ASCII array which stores pixel-data regarding how characters should be drawn
+ * to the LCD screen.
+ */
 static const unsigned char ASCII[][5] =
 {
  {0x00, 0x00, 0x00, 0x00, 0x00} // 20  
@@ -110,4 +117,5 @@ static const unsigned char ASCII[][5] =
 ,{0x78, 0x46, 0x41, 0x46, 0x78} // 7f ?
 };
 
-#endif /* ASCIIFONT_H_ */
+#endif /* RDASCIIFONT_H_ */
+
