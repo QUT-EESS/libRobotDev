@@ -3,7 +3,7 @@
  * RDSPI.h
  * Purpose: Abstracts all SPI functions
  * Created: 04/12/2014
- * Author(s): Arda Yilmaz
+ * Author(s): Arda Yilmaz, Jeremy Pearson
  * Status: UNTESTED
  */ 
 
@@ -12,87 +12,131 @@
  * 
  * MASTER MODE
  *      
- *      #define RDSPI_MASTER 1  // Optional, defaults to 1
+ *      #define SPI_MASTER 1  // Optional, defaults to 1
  *      #include "RDSPI.h"
  *
  * SLAVE MODE
  *
- *      #define RDSPI_MASTER 0  // Required
+ *      #define SPI_MASTER 0  // Required
  *      #include "RDSPI.h"
  *
  */
 
 #ifndef RDSPI_H_
+
+/**
+ * Robot Development In-System Programming Header.
+ */
 #define RDSPI_H_
 
 #include <avr/io.h>
 
-#if RDSPI_MASTER == 0
+#if SPI_MASTER == 0
 #include <avr/interrupt.h>
 
+/**
+ * Stores the current byte received over SPI.
+ */
 volatile uint8_t RDSPI_RxData;
-#endif // RDSPI_MASTER
 
-#define RDSPI_MOSI      PB2
-#define RDSPI_MISO      PB3
-#define RDSPI_SCK       PB1
-#define RDSPI_PORT      DDRB
+#endif // SPI_MASTER
 
-#ifndef RDSPI_MASTER
-#define RDSPI_MASTER    1
-#endif // RDSPI_MASTER
+/**
+ * In-System Programming Port.
+ */
+#define SPIPORT      DDRB
 
-/*
- * endian   0 - Little endian   (MSB first)
- *          1 - Big endian      (MSB last)
+#ifndef SPI_MASTER
+
+/**
+ * Setting for whether the mode will be master (1) or slave (0).
+ */
+#define SPI_MASTER    1
+
+#endif // SPI_MASTER
+
+/**
+ * Initialises SPI.
  *
- * mode     0 - Sample (rising), Setup (falling)
- *          1 - Setup (rising), Sample (falling)
- *          2 - Sample (falling), Setup (rising)
- *          3 - Setup (falling), Sample (rising)
+ * @param endian
+ *     0: Little-endian   (Most-Significant-Bit First),
+ *     1: Big-endian      (Most-Significant-Bit Last).
  *
+ * @param mode
+ *     0: (Sample Rising,  Setup Falling),
+ *     1: (Setup Rising,   Sample Falling),
+ *     2: (Sample Falling, Setup Rising),
+ *     3: (Setup Falling,  Sample Rising).
  */
 void RDSPIInit(uint8_t endian, uint8_t mode) {
 
     // Set SPI port directions
-    RDSPI_PORT = (RDSPI_PORT & ~(1 << RDSPI_MOSI)) | (RDSPI_MASTER << RDSPI_MOSI);
+    SPIPORT = (SPIPORT & ~(1 << MOSI)) | (SPI_MASTER << MOSI);
 
-    RDSPI_PORT = (RDSPI_PORT & ~(1 << RDSPI_MISO)) | (!RDSPI_MASTER << RDSPI_MISO);
+    SPIPORT = (SPIPORT & ~(1 << MISO)) | (!SPI_MASTER << MISO);
     
-    RDSPI_PORT = (RDSPI_PORT & ~(1 << RDSPI_SCK)) | (RDSPI_MASTER << RDSPI_SCK);
+    SPIPORT = (SPIPORT & ~(1 << SCLK)) | (SPI_MASTER << SCLK);
     
     // Set endianness, master/slave mode, clock polarity and phase.
-    SPCR = (SPCR  & ~(1 << DORD) ) | (endian << DORD) | (RDSPI_MASTER << MSTR) | (mode << CPHA);
+    SPCR = (SPCR  & ~(1 << DORD) ) | (endian << DORD) | (SPI_MASTER << MSTR) | (mode << CPHA);
     
     SPCR |= (1 << SPE);
     
-#if RDSPI_MASTER == 0
+#if SPI_MASTER == 0
     SPCR |= (1 << SPE) | (1 << SPIE);
     sei();
-#endif // RDSPI_MASTER
+#endif // SPI_MASTER
 }
 
-#if RDSPI_MASTER == 1
+#if SPI_MASTER == 1
 
+/**
+ * Sets the SPI Clock's frequency.
+ * 
+ * @param frq
+ *     The frequency to set the clock to.
+ *     0: (F_CPU / 4),
+ *     1: (F_CPU / 16),
+ *     2: (F_CPU / 64),
+ *     3: (F_CPU / 128),
+ *     4: (F_CPU / 2),
+ *     5: (F_CPU / 8),
+ *     6: (F_CPU / 32),
+ *     7: (F_CPU / 64).
+ */
 static inline void RDSPISetClock(uint8_t frq) {
-    
     SPCR = (SPCR & ~(3 << SPR0)) | (3 & frq);
     SPSR = (SPSR & ~(1 << SPI2X)) | (frq >> 2);
 }
 
-/*
- * frq      0 - F_CPU / 4
- *          1 - F_CPU / 16
- *          2 - F_CPU / 64
- *          3 - F_CPU / 128
- *          4 - F_CPU / 2
- *          5 - F_CPU / 8
- *          6 - F_CPU / 32
- *          7 - F_CPU / 64
+/**
+ * Reads and writes using SPI.
+ * 
+ * @param byte
+ *     The byte to transmit.
+ * 
+ * @param frq
+ *     The frequency to set the clock to.
+ *     0: (F_CPU / 4),
+ *     1: (F_CPU / 16),
+ *     2: (F_CPU / 64),
+ *     3: (F_CPU / 128),
+ *     4: (F_CPU / 2),
+ *     5: (F_CPU / 8),
+ *     6: (F_CPU / 32),
+ *     7: (F_CPU / 64).
+ * 
+ * @param port
+ *     The port that the chip select pin is on.
+ * 
+ * @param chipSelectPin
+ *     The chip select pin.
+ * 
+ * @return
+ *     A byte from the slave, if present.
  */
-uint8_t
-RDSPIRWByte(uint8_t byte, uint8_t frq, volatile uint8_t *port, uint8_t mask) {
-
+uint8_t RDSPIRWByte(uint8_t byte, uint8_t frq, volatile uint8_t *port,
+                    uint8_t chipSelectPin) {
     // Disable SPI
     //SPCR &= ~(1 << SPE);
     
@@ -103,14 +147,14 @@ RDSPIRWByte(uint8_t byte, uint8_t frq, volatile uint8_t *port, uint8_t mask) {
     //SPCR |= (1 << SPE);
     
     // Pull chip select (CS) low
-    *port &= ~(1 << mask);
+    *port &= ~(1 << chipSelectPin);
     
     // Send byte
     SPDR = byte;
     while(!(SPSR & (1<<SPIF)));
 
     // Pull chip select (CS) high
-    *port |= (1 << mask);
+    *port |= (1 << chipSelectPin);
     
     // return anything shifted from slave
     return SPDR;
@@ -118,18 +162,27 @@ RDSPIRWByte(uint8_t byte, uint8_t frq, volatile uint8_t *port, uint8_t mask) {
 
 #else
 
+/**
+ * Transmits a byte from the slave using SPI.
+ * 
+ * @param byte
+ *     The byte to transmit.
+ */
 void RDSPISlaveTxByte(uint8_t byte) {
-    
     while(!(SPSR & (1<<SPIF)));
     SPDR = byte;
 }
 
+/**
+ * Whenever a Serial Transfer Complete interrupt flag is triggered, this
+ * Interrupt Service Routine will store the data received, in RDSPI_RxData.
+ * Then it will reset SPDR to 0.
+ */
 ISR(SPI_STC_vect) {
-    
     RDSPI_RxData = SPDR;
     SPDR = 0;
 }
 
-#endif // RDSPI_MASTER == 1
+#endif // SPI_MASTER == 1
 
 #endif // RDSPI_H_
