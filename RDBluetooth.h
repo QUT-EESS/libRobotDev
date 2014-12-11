@@ -8,24 +8,44 @@
  * Status: UNTESTED
  */ 
 
+#include <avr/io.h>
 #include <util/delay.h>
+
 #include "RDUART.h"
 
 #ifndef RDBLUETOOTH_H_
+/**
+ * Robot Development Bluetooth Header.
+ */
 #define RDBLUETOOTH_H_
 
-#define	KEYPIN	(1 << PB4)
-#define	BTPWR	(1 << PB5)
+/**
+ * Bluetooth Key pin.
+ */
+#define	KEYPIN	(1 << PE5)
+
+/**
+ * Bluetooth Power Enable pin.
+ */
+#define	BTPWR	(1 << PE4)
+
+/**
+ * Bluetooth Data Direction Register.
+ */
+#define BTDDR DDRE
+
+/**
+ * Bluetooth Port.
+ */
+#define BTPORT PORTE
 
 static volatile char bluetoothBaud = 0;
 
-/*
+/**
  * Sets module name.
  *
- * @param char *name
+ * @param name
  *      Name of the module.
- *
- * @return void
  */
 static inline void RDBluetoothSetName(char *name) {
 
@@ -35,13 +55,11 @@ static inline void RDBluetoothSetName(char *name) {
     _delay_ms(750);
 }
 
-/*
+/**
  * Sets module pin.
  *
- * @param char *pin
+ * @param pin
  *      Module pairing pin.
- *
- * @return void
  */
 static inline void RDBluetoothSetPin(char *pin) {
 
@@ -51,13 +69,11 @@ static inline void RDBluetoothSetPin(char *pin) {
     _delay_ms(750);
 }
 
-/*
- * Sets module UART baud rate. For supported baud rates, see RDBluetoothConfig.
+/**
+ * Sets module UART baud-rate. For supported baud-rates, see RDBluetoothConfig.
  *
- * @param char baud
+ * @param baud
  *      See RDBluetoothConfig.
- *
- * @return void
  */
 static inline void RDBluetoothSetBR(char baud) {
 
@@ -67,12 +83,8 @@ static inline void RDBluetoothSetBR(char baud) {
     _delay_ms(750);
 }
 
-/*
+/**
  * Pings module.
- *
- * @param void
- *
- * @return void
  */
 static inline void RDBluetoothSendAT(void) {
     
@@ -81,29 +93,25 @@ static inline void RDBluetoothSendAT(void) {
     _delay_ms(200);
 }
 
-/*
+/**
  * Sends one byte of data.
  *
- * @param char byte
- *      Data byte to send.
- *
- * @return void
+ * @param byte
+ *      Data-byte to send.
  */
 void RDBluetoothSendByte(char byte){
     
     RDUARTPutc((uint8_t) byte);
 }
 
-/* UNTESTED
+/** UNTESTED
  * Sends packet of given length.
  *
- * @param char *buffer
- *      Data buffer to send.
+ * @param buffer
+ *      Data-buffer to send.
  *
- * @param uint16_t *length
- *      Length of buffer (including null terminator for strings).
- *
- * @return void
+ * @param length
+ *      Length of buffer (including null-terminator for strings).
  */
 void RDBluetoothSendBuffer(char* buffer, uint16_t length) {
     
@@ -112,24 +120,20 @@ void RDBluetoothSendBuffer(char* buffer, uint16_t length) {
     for (i = 0; i < length; ++i) RDBluetoothSendByte(buffer[0]);
 }
 
-/*
+/**
  * Receives one byte of data.
  *
- * @param void
- *
- * @return char
- *      Data byte
+ * @return
+ *      Data-byte
  */
 char RDBluetoothReceiveByte(void){
     return (char) RDUARTGetc();
 }
 
-/*
+/**
  * Check for "OK" response from module.
  *
- * @param void
- *
- * @return uint8_t
+ * @return
  *      1 if valid response,
  *      0 if invalid response.
  */
@@ -149,12 +153,8 @@ static inline uint8_t RDBluetoothCheckOk(void) {
     return (okCheckStr == 'O') ? 1 : 0;
 }
 
-/* UNTESTED
+/** UNTESTED
  * Adjusts appropriate control pins to put module into configuration mode.
- *
- * @param void
- *
- * @return void
  */
 static inline void RDBluetoothEnterConfigMode(void) {
     
@@ -169,12 +169,8 @@ static inline void RDBluetoothEnterConfigMode(void) {
     PORTB &= ~BTPWR;		// Turn on module
 }
 
-/* UNTESTED
+/** UNTESTED
  * Adjusts appropriate control pins to restart module.
- *
- * @param void
- *
- * @return void
  */
 static inline void RDBluetoothRestart(void) {
     PORTB &= ~KEYPIN;		// Pull KEY low
@@ -183,14 +179,14 @@ static inline void RDBluetoothRestart(void) {
     PORTB &= ~BTPWR;		// Turn on module
 }
 
-/*
- * Returns UL baud rate corresponding to designator.
+/**
+ * Returns UL baud-rate corresponding to designator.
  *
- * @param char
- *      Baud rate designator (see RDBluetoothSetBR header).
+ * @param
+ *      Baud-rate designator (see RDBluetoothSetBR header).
  *
- * @return unsigned long
- *      Corresponding UL baud rate. E.g. char "4" -> 9600UL
+ * @return
+ *      Corresponding UL baud-rate. E.g. char "4" -> 9600UL
  */
 static unsigned long RDBluetoothReturnBaudUL(char baud) {
     // Convert character to index value (0 : 12)
@@ -203,12 +199,8 @@ static unsigned long RDBluetoothReturnBaudUL(char baud) {
     return (baudVal >= 12) ? 1382400 : 1200 * (1 << (baudVal - 1)) - (baudVal >= 7) * ( 19200 * (1 << (baudVal - 7)) );
 }
 
-/*
- * Queries module for set baud rate and saves it to bluetoothBaud.
- *
- * @param void
- *
- * @return void
+/**
+ * Queries module for set baud-rate and saves it to bluetoothBaud.
  */
 static inline void RDBluetoothGetBaud(void) {
     char* baudSweep = "123456789ABC";
@@ -217,7 +209,7 @@ static inline void RDBluetoothGetBaud(void) {
     for (i = 0; baudSweep[i] != '\0'; ++i) {
         RDUARTInit(RDBluetoothReturnBaudUL(baudSweep[i]));		// Initialise UART
         RDBluetoothSendAT();				// Send ping
-        bluetoothBaud = baudSweep[i];       // Store current test baud rate
+        bluetoothBaud = baudSweep[i];       // Store current test baud-rate
         if (RDBluetoothCheckOk()) {
             break;    // Check response
         }
@@ -225,52 +217,48 @@ static inline void RDBluetoothGetBaud(void) {
     //RDBluetoothRestart();
 }
 
-/*
- * Initialises UART to modules current baud rate.
+/**
+ * Initialises UART to module's current baud-rate.
  *
- * @param void
- *
- * @return unsigned long
- *      Baud rate detected from module.
+ * @return
+ *      Baud-rate detected from module.
  */
 unsigned long RDBluetoothInit(void) {
-    // Get current baud rate
+    // Get current baud-rate
     RDBluetoothGetBaud();
-    // Initialize UART with last baud rate
+    // Initialize UART with last baud-rate
     unsigned long baud = RDBluetoothReturnBaudUL(bluetoothBaud);
     RDUARTInit(baud);
     
     return baud;
 }
 
-/*
- * Renames device, sets pin, and changes current baud rate. UART is reconfigured
- * automatically to the new baud rate. Module is automatically placed and 
+/**
+ * Renames device, sets pin, and changes current baud-rate. UART is reconfigured
+ * automatically to the new baud-rate. Module is automatically placed and 
  * brought out of configuration mode.
  * 
- * @param char *name
+ * @param name
  *      Name of the module.
  *
- * @param char *pin
+ * @param pin
  *      Module pairing pin.
  *
- * @param char baud
- *      Corresponding baud rate designator:
- *      char baud	Baud Rate
- *      "1"			1200
- *      "2"			2400
- *      "3"			4800
- *      "4"			9600
- *      "5"			19200
- *      "6"		    38400
- *      "7"			57600
- *      "8"			115200
- *      "9"			230400
- *      "A"			460800
- *      "B"			921600
- *      "C"			1382400
- *
- * @return void
+ * @param baud
+ *      Corresponding baud-rate designator.
+ *      (\a baud:	Baud-Rate),
+ *      ('1':			1200),
+ *      ('2':			2400),
+ *      ('3':			4800),
+ *      ('4':			9600),
+ *      ('5':			19200),
+ *      ('6':		    38400),
+ *      ('7':			57600),
+ *      ('8':			115200),
+ *      ('9':			230400),
+ *      ('A':			460800),
+ *      ('B':			921600),
+ *      ('C':			138240)
  */
 void RDBluetoothConfig(char *name, char* pin, char baud) {
     
