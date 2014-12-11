@@ -11,6 +11,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+#include "RDPinDefs.h"
 #include "RDUART.h"
 
 #ifndef RDBLUETOOTH_H_
