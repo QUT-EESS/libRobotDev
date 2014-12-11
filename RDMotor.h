@@ -1,4 +1,4 @@
-/* 
+/*
  * libRobotDev
  * RDMotor.h
  * Purpose: Abstracts all motor control functions.
@@ -7,24 +7,40 @@
  * Status: UNTESTED
  */
  
+#include <avr/io.h>
 #include <stdint.h>
+
 #include "RDPinDefs.h"
 #include "RDUtil.h"
  
 #ifndef RDMOTOR_H_
+/**
+ * Robot Development Motor Header.
+ */
 #define RDMOTOR_H_
 
+/**
+ * Motor1 Timer/Counter Output Compare Register A.
+ */
 #define M1_OCRA OCR1A
+
+/**
+ * Motor1 Timer/Counter Output Compare Register B.
+ */
 #define M1_OCRB OCR1B 
+
+/**
+ * Motor2 Timer/Counter Output Compare Register A.
+ */
 #define M2_OCRA OCR3A
+
+/**
+ * Motor2 Timer/Counter Output Compare Register B.
+ */
 #define M2_OCRB OCR3B
 
-/*
+/**
  * Initialises Timer1 and Timer3.
- * 
- * @param void
- * 
- * @return void
  */
 void RDTimerInit(void) {
 	set_bit(TCCR1A, COM1A1); // Compare Match A: Clear on match, Set at TOP.
@@ -42,25 +58,21 @@ void RDTimerInit(void) {
 	TCNT3 = 0x00; // Set counter to 0.
 }
 
-/*
+/**
  * Converts a double from range 0-100 to a int from 0-4095.
  * 
- * @param double percent
+ * @param percent
  *     A value from 0-100.
  * 
- * @return uint16_t
+ * @return
  *     An equivalent value on a scale of 0-4095.
  */
 uint16_t RDDutyCycle(double percent) {
 	return (uint16_t)((percent * 4095) / 100);
 }
 
-/*
+/**
  * Initialise motors.
- *
- * @param void
- * 
- * @return void
  */
 void RDMotorInit(void) {
 	RDTimerInit();
@@ -78,26 +90,22 @@ void RDMotorInit(void) {
 	M2_OCRB = RDDutyCycle(100);
 }
 
-/*
+/**
  * Sets Motor1 speed.
  * 
- * @param double speed
+ * @param speed
  *     The speed of the motor as percentage. Negative values for reverse.
- *
- * @return void
  */
 void RDSetM1Speed(double speed) {
 	M1_OCRA = (speed < 0) ? 0:RDDutyCycle(speed);
 	M1_OCRB = (speed < 0) ? RDDutyCycle(-speed):0;
 }
 
-/*
+/**
  * Sets Motor2 speed.
  * 
- * @param double speed
+ * @param speed
  *     The speed of the motor as percentage. Negative values for reverse.
- *
- * @return void
  */
 void RDSetM2Speed(double speed) {
 	M2_OCRA = (speed < 0) ? 0:RDDutyCycle(speed);
@@ -106,9 +114,6 @@ void RDSetM2Speed(double speed) {
 
 /*
  * Sets Motor1 to brake.
- * @param void
- * 
- * @return void
  */
 void RDSetM1Brake(void) {
 	M1_OCRA = RDDutyCycle(100);
@@ -117,9 +122,6 @@ void RDSetM1Brake(void) {
 
 /*
  * Sets Motor2 to brake.
- * @param void
- * 
- * @return void
  */
 void RDSetM2Brake(void) { 
 	M2_OCRA = RDDutyCycle(100);

@@ -19,15 +19,24 @@
 #include <stdlib.h>
 
 #ifndef RDUART_H_
+/**
+ * Robot Development Universal Asynchronous Receiver/Transmitter Header.
+ */
 #define RDUART_H_
-
 
 /*****************************************************************
  * Defines and Global Variables *
  *****************************************************************/
 
 // Ring buffer in struct
+/**
+ * Output Buffer Size.
+ */
 #define OUTPUT_BUFFER_SIZE 64
+
+/**
+ * Input Buffer Size.
+ */
 #define INPUT_BUFFER_SIZE 40
 
 /* Uncomment this define if you wish to erase old data in the input buffer
@@ -38,6 +47,9 @@
 
 // The following globals will form the basis for two circular buffers
 
+/**
+ * UART Ring Buffer Data Structure.
+ */
 typedef struct {
     uint8_t bufferTail;
     uint8_t bufferHead;
@@ -52,16 +64,14 @@ static volatile uart_buffer inputBuffer;
  * Function and Implementation *
  *****************************************************************/
 
-/*
+/**
  * Basic initialisation such as:
  *     * Setting interrupt driven UART
  *     * Setting to not use a parity bit
  *     * Setting to use a one stop bit
  * 
- * @param unsigned int baud
+ * @param baud
  *     baud rate for the UART in bits/s
- * 
- * @return void
  *
  */
 void RDUARTInit(unsigned long baud)
@@ -90,32 +100,29 @@ void RDUARTInit(unsigned long baud)
     sei();
 }
 
-/*
- * Advanced inilitiasation allows the user to input their choice of parity bits
- * and the number of stop bits (NOT YET IMPLEMENTED).
+/**
+ * NOT YET IMPLEMENTED...
+ * Advanced initialisation allows the user to input their choice of parity bits
+ * and the number of stop bits.
  *
- * @param unsigned int baud
+ * @param baud
  *     baud rate for the UART in bits/s
  *
- * @param unsigned char parityBit
+ * @param parityBit
  *     sets whether or not it will send a parity bit with each
        UART transmission.
  *
- * @param unsigned char stopBit
+ * @param stopBit
  *     the number of stop bits, can be either 1 or 2.
  * 
- * @return void
- *
  */
 void RDUARTInitAdvanced(unsigned long baud, unsigned char parityBit, unsigned char stopBit);
 
-/*
+/**
  * Put a byte in the output buffer and turn on the transmit interrupt.
  *
- * @param uint8_t data
+ * @param data
  *     byte of data to be transmitted via UART.
- * 
- * @return void
  */
 void RDUARTPutc(uint8_t data)
 {
@@ -138,15 +145,12 @@ void RDUARTPutc(uint8_t data)
     //sei();
 }
 
-/*
+/**
  * Get a character from the input buffer.
  * 
- * @param void
- * 
- * @return uint8_t
+ * @return
  *     The oldest byte in the input buffer.
  */
-
 uint8_t RDUARTGetc(void)
 {
     // If no characters are available the function will pause until there is
@@ -158,16 +162,14 @@ uint8_t RDUARTGetc(void)
     return inputBuffer.dataBuffer[inputBuffer.bufferTail];
 }
 
-/*
+/**
  * Put a string into the output buffer.
  * If the buffer overflows, the function will wait for the buffer to clear
  * before continuing.
  *
- * @param char *data
+ * @param data
  *     A null-terminated string to be transmitted via UART.
  *  
- * @return void
- *
  */
 void RDUARTPuts(char *data)
 {
@@ -177,15 +179,13 @@ void RDUARTPuts(char *data)
     while(*data++ != '\0');
 }
 
-/*
+/**
  * Put a string into the output buffer without a null-terminator.
  * If the buffer overflows, the function will wait for the buffer to clear before continuing.
  *
- * @param char *data
+ * @param data
  *     A null-terminated string to be transmitted via UART
  * 
- * @return void
- *
  */
 void RDUARTPutsNoNull(char *data)
 {
@@ -195,12 +195,10 @@ void RDUARTPutsNoNull(char *data)
     while(*++data != '\0');
 }
 
-/*
- * Check how many data bytes are currently stored in the receive buffer.
+/**
+ * Checks how many data bytes are currently stored in the receive buffer.
  * 
- * @param void
- *
- * @return uint8_t data
+ * @return
  *     Number of data bytes are currently stored in the receive buffer.
  */
 uint8_t RDUARTAvailable(void)
@@ -211,7 +209,7 @@ uint8_t RDUARTAvailable(void)
     return INPUT_BUFFER_SIZE + inputBuffer.bufferHead - inputBuffer.bufferTail;
 }
 
-/*
+/**
  * This interrupt service routine will transmit all characters currently in the
  * transmit buffer.
  * Once all characters have been transmitted the interrupt will be disabled.
@@ -233,7 +231,7 @@ ISR(USART1_UDRE_vect)
     }
 }
 
-/*
+/**
  * This interrupt service routine will load every byte of data received via UART into the data buffer.
  * Once the buffer is filled data received will no longer be loaded into the buffer.
  */
