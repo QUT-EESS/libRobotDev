@@ -88,21 +88,21 @@ uint16_t RDAddTwoNumbers(int x, int y) {
 ```
 
 (13) Every function should have a header comment of the same form as this header
-     comment:  
+     comment (notice the two asterisks after the forward-slash, this makes Doxygen process the comment):  
 ```
-/*
- * Reads an analog signal
+/**
+ * Reads an analog signal.
  * 
- * @param unsigned char channel
- *     The pin that should be read
+ * @param channel
+ *     The pin that should be read.
  *
- * @param unsigned char mode
- *     The mode can be MODE_8_BIT or MODE_10_BIT
- *     if mode == MODE_8_BIT, the resolution will be 256
- *     if mode == MODE_10_BIT, the resolution will be 1024
+ * @param mode
+ *     The mode can be MODE_8_BIT or MODE_10_BIT.
+ *     if mode == MODE_8_BIT, the resolution will be 256.
+ *     if mode == MODE_10_BIT, the resolution will be 1024.
  * 
- * @return uint16_t
- *     Digital representation of analog signal
+ * @return
+ *     Digital representation of analog signal.
  */
 uint16_t RDAnalogRead(unsigned char channel, unsigned char mode) {
     // Code of function body
