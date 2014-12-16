@@ -78,10 +78,10 @@ void RDMotorInit(void) {
 	RDTimerInit();
 	
 	// Motor pins to output.
-	set_bit(DDRB, MCTRL_IN1);
-	set_bit(DDRB, MCTRL_IN2);
-	set_bit(DDRC, MCTRL_IN3);
-	set_bit(DDRC, MCTRL_IN4);
+	set_bit(DDRB, M1_OCRA);
+	set_bit(DDRB, M1_OCRB);
+	set_bit(DDRC, M2_OCRA);
+	set_bit(DDRC, M2_OCRB);
 
 	// All pins to HIGH to brake motors.
 	M1_OCRA = RDDutyCycle(100);
