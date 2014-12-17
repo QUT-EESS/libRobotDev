@@ -4,7 +4,7 @@
  * Purpose: Abstracts all micro analog functions
  * Created: 25/07/2014
  * Author(s): Jerry Luck, Jeremy Pearson, Shaun Karran
- * Status: UNTESTED
+ * Status: TESTED <Blake>
  */ 
 
 #include <stdint.h>

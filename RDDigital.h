@@ -4,7 +4,7 @@
  * Purpose: Abstracts all micro digital functions
  * Created: 25/07/2014
  * Author(s): Jerry Luck, Jeremy Pearson
- * Status: UNTESTED
+ * Status: TESTED <Blake>
  */ 
 
 #include <avr/io.h>

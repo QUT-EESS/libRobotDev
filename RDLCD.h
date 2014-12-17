@@ -4,7 +4,7 @@
  * Purpose: Abstracts all LCD functions
  * Created: 05/12/2014
  * Author(s): Arda Yilmaz, Jeremy Pearson
- * Status: UNTESTED
+ * Status: TESTED <Blake>
  */
 
 #include <avr/io.h>
