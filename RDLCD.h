@@ -198,7 +198,7 @@ void RDLCDInit(void) {
     // Use extended instruction set
     RDLCDWrite(LCD_EXT_FN, RDLCD_C);
     // Set default contrast
-    RDLCDWrite(LCD_SET_CONTRAST | RDLCD_HIGH_CONTRAST, RDLCD_C);
+    RDLCDWrite(LCD_SET_CONTRAST | RDLCD_DEFAULT_CONTRAST, RDLCD_C);
     // Use basic instruction set
     RDLCDWrite(LCD_BSC_FN, RDLCD_C);
     //Set LCD to normal mode

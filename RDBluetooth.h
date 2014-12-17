@@ -5,7 +5,7 @@
  * Created: 29/07/2014
  * Author(s): Lachlan Cesca, Samuel Cunningham-Nelson, Arda Yilmaz,
  *            Jeremy Pearson
- * Status: UNTESTED
+ * Status: TESTED
  */ 
 
 #include <avr/io.h>
@@ -105,7 +105,7 @@ void RDBluetoothSendByte(char byte){
     RDUARTPutc((uint8_t) byte);
 }
 
-/** UNTESTED
+/** 
  * Sends packet of given length.
  *
  * @param buffer
@@ -118,7 +118,7 @@ void RDBluetoothSendBuffer(char* buffer, uint16_t length) {
     
     uint16_t i = 0;
     
-    for (i = 0; i < length; ++i) RDBluetoothSendByte(buffer[0]);
+    for (i = 0; i < length; ++i) RDBluetoothSendByte(buffer[i]);
 }
 
 /**
@@ -276,21 +276,5 @@ void RDBluetoothConfig(char *name, char* pin, char baud) {
     bluetoothBaud = baud;		// Update baud rate
     RDUARTInit( RDBluetoothReturnBaudUL(bluetoothBaud) );	// Reinitialise UART with new baud
 }
-
-//void* RDBluetoothPacket(char header, char* buffer, uint16_t length) {
-    /* Dynamic Packet struct
-     * char 	header
-     * uint16_t 	data_len
- * char* 	data
-     */
-    //Allocate memory
-//	void* packet = (void*)malloc(sizeof(header)+length);
-//	//Copy data into malloc
-//	memcpy(packet, header, sizeof(header));			// header
-//	memcpy(packet+sizeof(header), length, sizeof(length));	// data_len
-//	memcpy(packet+sizeof(header)+sizeof(length), buffer, length);	// data
-    
-//	return packet;
-//}
 
 #endif // RDBLUETOOTH_H_
