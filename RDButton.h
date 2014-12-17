@@ -4,7 +4,7 @@
  * Purpose: Abstracts all micro button interface functions
  * Created: 25/07/2014 11:52:35 AM
  * Author(s): Jerry Luck, Jeremy Pearson, Darryl Lee
- * Status: UNTESTED
+ * Status: TESTED <Blake>
  */ 
 
 #include <avr/io.h>

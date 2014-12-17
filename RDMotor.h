@@ -4,7 +4,7 @@
  * Purpose: Abstracts all motor control functions.
  * Created: 25/07/2014
  * Author(s): Jerry Luck, Jeremy Pearson, Shaun Karran
- * Status: TESTED
+ * Status: TESTED <Blake>
  */
  
 #include <avr/io.h>
