@@ -2,16 +2,9 @@
  * libRobotDev
  * RDUART.h
  * Purpose: Abstracts all UART functions
- * Created: 21/09/2014 19:21:53 PM
- * Author(s): Seamus Stephens, Thomas Tutin, Jeremy Pearson
+ * Created: September 2014
+ * Author(s): Jerrold Luck, Seamus Stephens, Thomas Tutin, Jeremy Pearson
  * Status: TESTED
- * 
- * 
- * FUTURE CHANGES
- * Creates and transmits a data packet
- * void RDUART_sendPacket();
- * 9 bit transfer options 
- * Parity checking 
  */ 
 
 #include <avr/interrupt.h>
@@ -20,7 +13,7 @@
 
 #ifndef RDUART_H_
 /**
- * Robot Development Universal Asynchronous Receiver/Transmitter Header.
+ * Robot Development UART Header.
  */
 #define RDUART_H_
 
@@ -28,47 +21,51 @@
  * Defines and Global Variables *
  *****************************************************************/
 
-// Ring buffer in struct
+/**
+ * CPU Frequency
+ */
+#ifndef F_CPU 
+#define F_CPU 16000000
+#endif
+
 /**
  * Output Buffer Size.
  */
-#define OUTPUT_BUFFER_SIZE 64
+#define OUTPUT_BUFFER_SIZE	64
 
 /**
  * Input Buffer Size.
  */
-#define INPUT_BUFFER_SIZE 40
+#define INPUT_BUFFER_SIZE	40
 
 /* Uncomment this define if you wish to erase old data in the input buffer
  * in the event of an buffer overflow
  */
-
 // #define _WIPE_OLD_DATA
 
-// The following globals will form the basis for two circular buffers
-
 /**
- * UART Ring Buffer Data Structure.
+ * Ring Buffer data structure.
  */
 typedef struct {
-    uint8_t bufferTail;
-    uint8_t bufferHead;
-    uint8_t * dataBuffer;
-} uart_buffer;
+    uint8_t tail;
+    uint8_t head;
+    volatile uint8_t* data;
+} ring_buffer;
 
-static volatile uart_buffer outputBuffer;
-static volatile uart_buffer inputBuffer;
-
+/**
+ * Pre-allocated ring buffers.
+ */
+static volatile ring_buffer outputBuffer;
+static volatile ring_buffer inputBuffer;
+static volatile uint8_t outputData[OUTPUT_BUFFER_SIZE];
+static volatile uint8_t inputData[INPUT_BUFFER_SIZE];
 
 /*****************************************************************
  * Function and Implementation *
  *****************************************************************/
 
 /**
- * Basic initialisation such as:
- *     * Setting interrupt driven UART
- *     * Setting to not use a parity bit
- *     * Setting to use a one stop bit
+ * Basic initialization with baudrate option.
  * 
  * @param baud
  *     baud rate for the UART in bits/s
@@ -76,47 +73,35 @@ static volatile uart_buffer inputBuffer;
  */
 void RDUARTInit(unsigned long baud)
 {
-    // Turn off interrupts (necessary when setting UART).
+    // Turn off interrupts
     cli();
-    // Resets the tail and headers for both input and output buffers
-    outputBuffer.bufferTail = outputBuffer.bufferHead  = 0;
-    inputBuffer.bufferTail = inputBuffer.bufferHead = 0;
-    // Dynamically allocates space for both input and output data buffers
-    outputBuffer.dataBuffer = (uint8_t*) malloc(OUTPUT_BUFFER_SIZE * sizeof(uint8_t));
-    inputBuffer.dataBuffer = (uint8_t*) malloc(INPUT_BUFFER_SIZE * sizeof(uint8_t));
-    // Set the baud rate for the device. 
-    //UBRR1 = (F_CPU / (8 * baud)) - 1; Apparently this doesn't work - Tested with arduino
-    UBRR1 = ((F_CPU / (4 * baud)) - 1)/2; // Apparently this does work :(
-    // Sets the control & status register A to use double transmission speeds.
+    
+	// Resets the tail and headers for both input and output buffers
+    outputBuffer.tail = outputBuffer.head  = 0;
+    inputBuffer.tail = inputBuffer.head = 0;
+    
+	// Link data containers
+	outputBuffer.data = outputData;
+	inputBuffer.data = inputData;
+	
+	// Set the baud rate for the device. 
+    UBRR1 = ((F_CPU / (4 * baud)) - 1)/2;
+    
+	// Sets the control & status register A to use double transmission speeds.
     UCSR1A = (1 << U2X1);
+   
     // Sets the control & status register B to enable transmitting and 
     // receiving. Transmitting and receiving interrupts is also enabled.
     UCSR1B = (1 << RXCIE1);
     UCSR1B |= (1 << RXEN1) | (1 << TXEN1); 
-    // Sets the control & status register C. Parity bits are disabled and only 1 stop bit used.
+    
+	// Sets the control & status register C. Parity bits are disabled and only 1 stop bit used.
     // 8 bits will be used for transferral (UCSZn1 and UCSZn0 are both set to 1)
     UCSR1C = (3 << UCSZ10);
-    // Turn on interrupts
+   
+   // Turn on interrupts
     sei();
 }
-
-/**
- * NOT YET IMPLEMENTED...
- * Advanced initialisation allows the user to input their choice of parity bits
- * and the number of stop bits.
- *
- * @param baud
- *     baud rate for the UART in bits/s
- *
- * @param parityBit
- *     sets whether or not it will send a parity bit with each
-       UART transmission.
- *
- * @param stopBit
- *     the number of stop bits, can be either 1 or 2.
- * 
- */
-void RDUARTInitAdvanced(unsigned long baud, unsigned char parityBit, unsigned char stopBit);
 
 /**
  * Put a byte in the output buffer and turn on the transmit interrupt.
@@ -124,22 +109,22 @@ void RDUARTInitAdvanced(unsigned long baud, unsigned char parityBit, unsigned ch
  * @param data
  *     byte of data to be transmitted via UART.
  */
-void RDUARTPutc(uint8_t data)
+void RDUARTSendChar(uint8_t data)
 {
-    outputBuffer.bufferHead++;
+    outputBuffer.head++;
     
-    if (outputBuffer.bufferHead >= OUTPUT_BUFFER_SIZE){
-        outputBuffer.bufferHead = 0;
+    if (outputBuffer.head >= OUTPUT_BUFFER_SIZE){
+        outputBuffer.head = 0;
     }
     
     // Will wait until the buffer has space before continuing
-    while (outputBuffer.bufferTail == outputBuffer.bufferHead) {;}
+    while (outputBuffer.tail == outputBuffer.head) {;}
     
     // This should usually be here however, in the event you are sending crazy amounts of data
     // this will break the code
     //cli();
     
-    outputBuffer.dataBuffer[outputBuffer.bufferHead] = data;
+    outputBuffer.data[outputBuffer.head] = data;
     UCSR1B |= (1<<UDRIE1);
     
     //sei();
@@ -151,15 +136,15 @@ void RDUARTPutc(uint8_t data)
  * @return
  *     The oldest byte in the input buffer.
  */
-uint8_t RDUARTGetc(void)
+uint8_t RDUARTGetChar(void)
 {
     // If no characters are available the function will pause until there is
-    while (inputBuffer.bufferHead == inputBuffer.bufferTail) {;}
-    inputBuffer.bufferTail++;
-    if (inputBuffer.bufferTail >= INPUT_BUFFER_SIZE) {
-        inputBuffer.bufferTail = 0;
+    while (inputBuffer.head == inputBuffer.tail) {;}
+    inputBuffer.tail++;
+    if (inputBuffer.tail >= INPUT_BUFFER_SIZE) {
+        inputBuffer.tail = 0;
     }
-    return inputBuffer.dataBuffer[inputBuffer.bufferTail];
+    return inputBuffer.data[inputBuffer.tail];
 }
 
 /**
@@ -171,28 +156,26 @@ uint8_t RDUARTGetc(void)
  *     A null-terminated string to be transmitted via UART.
  *  
  */
-void RDUARTPuts(char *data)
+void RDUARTSendString(char *data)
 {
     do {
-        RDUARTPutc(*data);
-    }
-    while(*data++ != '\0');
+        RDUARTSendChar(*data);
+    } while(*data++ != '\0');
 }
 
 /**
- * Put a string into the output buffer without a null-terminator.
- * If the buffer overflows, the function will wait for the buffer to clear before continuing.
+ * Send a buffer of data with a specified length.
  *
  * @param data
- *     A null-terminated string to be transmitted via UART
- * 
+ *     Pointer to buffer
+ * @param len
+ *		The length of the buffer
  */
-void RDUARTPutsNoNull(char *data)
+void RDUARTSendBuffer(char *data, uint8_t len)
 {
     do {
-        RDUARTPutc(*data);
-    }
-    while(*++data != '\0');
+        RDUARTSendChar(*data);
+    } while(len-- != 0);
 }
 
 /**
@@ -203,10 +186,10 @@ void RDUARTPutsNoNull(char *data)
  */
 uint8_t RDUARTAvailable(void)
 {
-    if (inputBuffer.bufferHead >= inputBuffer.bufferTail) {
-        return inputBuffer.bufferHead - inputBuffer.bufferTail;
+    if (inputBuffer.head >= inputBuffer.tail) {
+        return inputBuffer.head - inputBuffer.tail;
     }
-    return INPUT_BUFFER_SIZE + inputBuffer.bufferHead - inputBuffer.bufferTail;
+    return INPUT_BUFFER_SIZE + inputBuffer.head - inputBuffer.tail;
 }
 
 /**
@@ -216,18 +199,18 @@ uint8_t RDUARTAvailable(void)
  */
 ISR(USART1_UDRE_vect)
 {
-    if (outputBuffer.bufferHead == outputBuffer.bufferTail) 
+    if (outputBuffer.head == outputBuffer.tail) 
     {
         // Disable the transmit interrupt once all transmissions have completed
         UCSR1B &= ~(1<<UDRIE1);
     }
     else
     {
-        outputBuffer.bufferTail++;
-        if (outputBuffer.bufferTail >= OUTPUT_BUFFER_SIZE) {
-            outputBuffer.bufferTail = 0;
+        outputBuffer.tail++;
+        if (outputBuffer.tail >= OUTPUT_BUFFER_SIZE) {
+            outputBuffer.tail = 0;
         }
-        UDR1 = outputBuffer.dataBuffer[outputBuffer.bufferTail];
+        UDR1 = outputBuffer.data[outputBuffer.tail];
     }
 }
 
@@ -238,7 +221,7 @@ ISR(USART1_UDRE_vect)
 ISR(USART1_RX_vect)
 {
     uint8_t i;
-    i = inputBuffer.bufferHead + 1;
+    i = inputBuffer.head + 1;
     if (i >= INPUT_BUFFER_SIZE){
         i = 0;
     }
@@ -247,26 +230,26 @@ ISR(USART1_RX_vect)
 
     // Checks to make sure the buffer head hasn't wrapped around and the circular buffer.
     // In this case, data received will be lost. 
-    if (i != inputBuffer.bufferTail)
+    if (i != inputBuffer.tail)
     {
-        inputBuffer.dataBuffer[i] = UDR1;
-        inputBuffer.bufferHead = i;
+        inputBuffer.data[i] = UDR1;
+        inputBuffer.head = i;
     }
 
     #endif
 
     #ifdef _WIPE_OLD_DATA
 
-    // If the inputBuffer.bufferHead has wrapped around the circular buffer inputBuffer.bufferTail will be 
+    // If the inputBuffer.head has wrapped around the circular buffer inputBuffer.tail will be 
     // incremented and the oldest data will be lost
-    if (i == inputBuffer.bufferTail)
+    if (i == inputBuffer.tail)
     {
-        if (inputBuffer.bufferTail >= INPUT_BUFFER_SIZE){
-            inputBuffer.bufferTail = 0;
+        if (inputBuffer.tail >= INPUT_BUFFER_SIZE){
+            inputBuffer.tail = 0;
         }
     }
-    inputBuffer.dataBuffer[i] = UDR1;
-    inputBuffer.bufferHead = i;
+    inputBuffer.data[i] = UDR1;
+    inputBuffer.head = i;
 
     #endif
 }
