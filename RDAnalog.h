@@ -99,6 +99,7 @@ void RDAnalogInit(unsigned char prescaler) {
 */
 uint16_t RDAnalogRead(unsigned char channel, unsigned char mode) {
 	ADMUX |= channel; // Channel to be read
+	while (ADCSRA & (1 << ADSC)); // Wait for channel change completion
 	if (mode == MODE_8_BIT) {
 		set_bit(ADMUX, ADLAR); // Left align if 8-bit mode
     } else {
@@ -196,7 +197,8 @@ void RDAnalogReadCont(unsigned char channel, unsigned char enable) {
  */
 uint16_t RDAnalogReadAvg(unsigned char channel, unsigned char mode, uint16_t samples) {
 	uint32_t sum = 0;
-	for (int i = 0; i < samples; i++) {
+	int i;
+	for (i = 0; i < samples; i++) {
 		sum += RDAnalogRead(channel, mode);
     }
 	return (uint16_t)(sum/samples);
