@@ -98,6 +98,7 @@ void RDAnalogInit(unsigned char prescaler) {
  *     Digital representation of analog signal.
 */
 uint16_t RDAnalogRead(unsigned char channel, unsigned char mode) {
+	ADMUX &= 0b11100000; // Clear previous channel selection
 	ADMUX |= channel; // Channel to be read
 	while (ADCSRA & (1 << ADSC)); // Wait for channel change completion
 	if (mode == MODE_8_BIT) {
