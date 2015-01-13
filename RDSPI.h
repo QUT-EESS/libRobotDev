@@ -4,7 +4,7 @@
  * Purpose: Abstracts all SPI functions
  * Created: 04/12/2014
  * Author(s): Arda Yilmaz, Jeremy Pearson
- * Status: UNTESTED
+ * Status: TESTED <Blake>
  */ 
 
 /*
