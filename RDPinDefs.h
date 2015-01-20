@@ -166,12 +166,12 @@
 /**
  * On-Board LED1.
  */
-#define OB_LED1 PD2
+#define OB_LED1 PC2
 
 /**
  * On-Board LED1.
  */
-#define OB_LED2 PC4
+#define OB_LED2 PD4
 
 /* LCD */
 
