@@ -51,8 +51,8 @@ static volatile char bluetoothBaud = 0;
 static inline void RDBluetoothSetName(char *name) {
 
     char *preamble = "AT+NAME";		// Preamble
-    RDUARTPutsNoNull(preamble);   // Transmit
-    RDUARTPutsNoNull(name);	
+    for (uint8_t i = 0; preamble[i] != '\0'; i++) RDUARTSendChar(preamble[i]);
+    for (uint8_t i = 0; name[i] != '\0'; i++) RDUARTSendChar(name[i]);
     _delay_ms(750);
 }
 
@@ -65,8 +65,8 @@ static inline void RDBluetoothSetName(char *name) {
 static inline void RDBluetoothSetPin(char *pin) {
 
     char* preamble = "AT+PIN";  // Preamble
-    RDUARTPutsNoNull(preamble); // Transmit
-    RDUARTPutsNoNull(pin);
+    for (uint8_t i = 0; preamble[i] != '\0'; i++) RDUARTSendChar(preamble[i]);
+    for (uint8_t i = 0; pin[i] != '\0'; i++) RDUARTSendChar(pin[i]);
     _delay_ms(750);
 }
 
@@ -79,8 +79,8 @@ static inline void RDBluetoothSetPin(char *pin) {
 static inline void RDBluetoothSetBR(char baud) {
 
     char* preamble = "AT+BAUD";		// Preamble.
-    RDUARTPutsNoNull(preamble);	// Transmit
-    RDUARTPutc(baud);
+    for (uint8_t i = 0; preamble[i] != '\0'; i++) RDUARTSendChar(preamble[i]);
+    RDUARTSendChar(baud);
     _delay_ms(750);
 }
 
@@ -90,7 +90,7 @@ static inline void RDBluetoothSetBR(char baud) {
 static inline void RDBluetoothSendAT(void) {
     
     char *preamble = "AT";          // Preamble
-    RDUARTPutsNoNull(preamble);	// Transmit
+    for (uint8_t i = 0; preamble[i] != '\0'; i++) RDUARTSendChar(preamble[i]);
     _delay_ms(200);
 }
 
@@ -102,7 +102,7 @@ static inline void RDBluetoothSendAT(void) {
  */
 void RDBluetoothSendByte(char byte){
     
-    RDUARTPutc((uint8_t) byte);
+    RDUARTSendChar((uint8_t) byte);
 }
 
 /** 
@@ -128,7 +128,7 @@ void RDBluetoothSendBuffer(char* buffer, uint16_t length) {
  *      Data-byte
  */
 char RDBluetoothReceiveByte(void){
-    return (char) RDUARTGetc();
+    return (char) RDUARTGetChar();
 }
 
 /**

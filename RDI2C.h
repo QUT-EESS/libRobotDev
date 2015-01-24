@@ -13,6 +13,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define I2C_STATUS		(TWSR & 0xf8)
 #define I2CStart()		(TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN) | (1 << TWIE))
@@ -35,6 +36,13 @@
 #define MR_DATAR_ACK	0x50
 #define MR_DATAR_NACK	0x58
 
+#ifndef RDI2C_DYNAMIC
+#ifndef	RDI2C_BUFFER_SIZE
+#define	RDI2C_BUFFER_SIZE	16
+#endif	// RDI2C_BUFFER_SIZE
+static uint8_t staticBuffer[RDI2C_BUFFER_SIZE];
+#endif	// RDI2C_DYNAMIC
+
 typedef struct I2CSM {
 
 	uint8_t SLA_RW;
@@ -44,7 +52,7 @@ typedef struct I2CSM {
 	uint8_t bufferLength;	
 } I2CSM;
 
-static I2CSM RDI2CSM = {0, 0, NULL, 0, 1, };
+static I2CSM RDI2CSM = {0, 0, NULL, 0, 0, };
 
 void RDI2CInit(uint8_t scalef) {
 	
@@ -54,6 +62,8 @@ void RDI2CInit(uint8_t scalef) {
 
 	// Enable I2C
 	TWCR |= (1 << TWEN) | (1 << TWIE);
+	
+	sei();
 }
 static uint8_t I2CReady(void) {
 
@@ -83,17 +93,21 @@ void RDI2CRead(uint8_t addr, uint8_t *buffer, uint8_t bufferLength) {
 	while (!I2CReady());
 }
 
-uint8_t RDI2CWrite(uint8_t addr, uint8_t *buffer, uint8_t bufferLength) {
+int8_t RDI2CWrite(uint8_t addr, uint8_t *buffer, uint8_t bufferLength) {
 	
 	// Wait until interface becomes available
 	while (!I2CReady());
 	
+#ifndef RDI2C_DYNAMIC
+	if (bufferLength > RDI2C_BUFFER_SIZE) return -1;
+	RDI2CSM.buffer = staticBuffer;
+	RDI2CSM.bufferLength = RDI2C_BUFFER_SIZE;
+#else
 	// Allocate memory
 	RDI2CSM.buffer = malloc(bufferLength * sizeof(uint8_t));
-	
-	if (RDI2CSM.buffer == NULL) return 0;
-
+	if (RDI2CSM.buffer == NULL) return -1;
 	RDI2CSM.bufferLength = bufferLength;
+#endif	// RDI2C_DYNAMIC
 
 	// Copy data into transmit buffer
 	memcpy(RDI2CSM.buffer, buffer, bufferLength);
@@ -107,7 +121,7 @@ uint8_t RDI2CWrite(uint8_t addr, uint8_t *buffer, uint8_t bufferLength) {
 	// Send start condition
 	I2CStart();
 	
-	return 1;
+	return 0;
 }
 
 ISR(TWI_vect) {
@@ -124,8 +138,8 @@ ISR(TWI_vect) {
 		case MT_SLA_W_ACK:	// Write request acknowledged
 			
 			// Copy data to TWDR
-			TWDR = *buffer;
-			++bufferIndex;
+			TWDR = RDI2CSM.buffer[RDI2CSM.bufferIndex];
+			++RDI2CSM.bufferIndex;
 			I2CContinue();
 			break;
 			
@@ -138,24 +152,26 @@ ISR(TWI_vect) {
 		case MR_SLA_R_ACK:	// Read request acknowledged
 			
 			// Copy TWDR to buffer
-			*buffer = TWDR;
-			++bufferIndex;
+			RDI2CSM.buffer[RDI2CSM.bufferIndex] = TWDR;
+			++RDI2CSM.bufferIndex;
 			I2CACK();
 			break;
 					
 		case MT_DATAT_ACK:	// Data transmitted, ACK received
 			
 			// If there is still data to be transmitted
-			if (RDI2CSM.repeat && (bufferIndex < bufferLength)) {
+			if (RDI2CSM.repeat && (RDI2CSM.bufferIndex < RDI2CSM.bufferLength)) {
 				
 				// Send repeated start condition
 				I2CStart();
 			} else {
-			
+				
+#ifdef RDI2C_DYNAMIC
 				// Deallocate memory
 				free(RDI2CSM.buffer);
-				buffer = NULL;
-				bufferIndex = 0;
+#endif // RDI2C_DYNAMIC
+				RDI2CSM.buffer = NULL;
+				RDI2CSM.bufferIndex = 0;
 				
 				// Send stop condition
 				I2CStop();
@@ -165,11 +181,13 @@ ISR(TWI_vect) {
 			break;
 			
 		case MT_DATAT_NACK:	// Data transmitted, NACK received
-			
+		
+#ifdef RDI2C_DYNAMIC
 			// Deallocate memory
 			free(RDI2CSM.buffer);
-			buffer = NULL;
-			bufferIndex = 0;
+#endif // RDI2C_DYNAMIC
+			RDI2CSM.buffer = NULL;
+			RDI2CSM.bufferIndex = 0;
 			
 			// Send stop condition
 			I2CStop();
@@ -178,7 +196,7 @@ ISR(TWI_vect) {
 		case MR_DATAR_ACK:	// Data received, ACK transmitted
 			
 			// If there is still data to be received
-			if (RDI2CSM.repeat && (bufferIndex < bufferLength)) {
+			if (RDI2CSM.repeat && (RDI2CSM.bufferIndex < RDI2CSM.bufferLength)) {
 				
 				// Send repeated start condition
 				I2CStart();
@@ -194,8 +212,8 @@ ISR(TWI_vect) {
 		case MR_DATAR_NACK: // Data received, NACK transmitted
 
 			// Clear buffer pointer
-			buffer = NULL;
-			bufferIndex = 0;
+			RDI2CSM.buffer = NULL;
+			RDI2CSM.bufferIndex = 0;
 
 			I2CStop();
 			
@@ -204,15 +222,15 @@ ISR(TWI_vect) {
 			if (RDI2CSM.SLA_RW & 1) {
 				
 				// Read operations
-				buffer[bufferIndex] = TWDR;
-				++bufferIndex;
+				RDI2CSM.buffer[RDI2CSM.bufferIndex] = TWDR;
+				++RDI2CSM.bufferIndex;
 				I2CACK();
 				
 			} else {
 			
 				// Copy data to TWDR
-				TWDR = buffer[bufferIndex];
-				++bufferIndex;
+				TWDR = RDI2CSM.buffer[RDI2CSM.bufferIndex];
+				++RDI2CSM.bufferIndex;
 				I2CContinue();
 			}
 			break;
@@ -220,7 +238,7 @@ ISR(TWI_vect) {
 		default:
 			
 			I2CContinue();
-			break
+			break;
 	}
 }
 
