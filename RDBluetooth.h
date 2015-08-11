@@ -2,7 +2,7 @@
  * libRobotDev
  * RDBluetooth.h
  * Purpose: Abstracts all Bluetooth functions
- * Created: 29/07/2014
+ * Created: 09/08/2015
  * Author(s): Lachlan Cesca, Samuel Cunningham-Nelson, Arda Yilmaz,
  *            Jeremy Pearson
  * Status: TESTED <Blake>
@@ -160,24 +160,24 @@ static inline uint8_t RDBluetoothCheckOk(void) {
 static inline void RDBluetoothEnterConfigMode(void) {
     
     // Enable control pins
-    DDRB |= BTPWR | KEYPIN;
+    BTDDR |= BTPWR | KEYPIN;
     
     // Place Bluetooth in config mode
-    PORTB |= BTPWR;			// Turn off module
-    PORTB |= KEYPIN;		// Pull KEY high
+    BTPORT |= BTPWR;			// Turn off module
+    BTPORT |= KEYPIN;		// Pull KEY high
     
     _delay_ms(100);
-    PORTB &= ~BTPWR;		// Turn on module
+    BTPORT &= ~BTPWR;		// Turn on module
 }
 
 /** UNTESTED
  * Adjusts appropriate control pins to restart module.
  */
 static inline void RDBluetoothRestart(void) {
-    PORTB &= ~KEYPIN;		// Pull KEY low
-    PORTB |= BTPWR;			// Turn off module
+    BTPORT &= ~KEYPIN;		// Pull KEY low
+    BTPORT |= BTPWR;			// Turn off module
     _delay_ms(100);
-    PORTB &= ~BTPWR;		// Turn on module
+    BTPORT &= ~BTPWR;		// Turn on module
 }
 
 /**
@@ -190,14 +190,11 @@ static inline void RDBluetoothRestart(void) {
  *      Corresponding UL baud-rate. E.g. char "4" -> 9600UL
  */
 static unsigned long RDBluetoothReturnBaudUL(char baud) {
-    // Convert character to index value (0 : 12)
-    uint8_t baudVal = (baud < 'A') ? baud - '0' : (baud - 'A') + 10;
-    /*
-     * 1 - 6  : 1200 * 2^(baudVal - 1)
-     * 7 - 11 : 1200 * 2^(baudVal - 1) - 19200 * 2^(baudVal - 7)
-     * 12     : 1382400
-     */
-    return (baudVal >= 12) ? 1382400 : 1200 * (1 << (baudVal - 1)) - (baudVal >= 7) * ( 19200 * (1 << (baudVal - 7)) );
+    char* baudSweep = "123456789ABC";
+	unsigned long baudVal[12] = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600, 1382400};
+	uint8_t i = 0;
+	while (baudSweep[i]!=baud) i++;
+	return baudVal[i];
 }
 
 /**
@@ -271,6 +268,8 @@ void RDBluetoothConfig(char *name, char* pin, char baud) {
     RDBluetoothSetPin(pin);		// Set pin
     RDBluetoothSetBR(baud);		// Set baud rate
     
+    _delay_ms(750);   
+	
     RDBluetoothRestart();
     
     bluetoothBaud = baud;		// Update baud rate
