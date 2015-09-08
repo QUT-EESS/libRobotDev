@@ -4,7 +4,7 @@
  * Purpose: To play doof doofs
  * Created: 31/07/2015
  * Author(s): Lachlan Cesca
- * Status: Working
+ * Status: Wroking
  */ 
  
 #ifndef RDPIEZO_H_
@@ -12,36 +12,20 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "pitches.h"
 
-// Uses same pin as servo
+// Uses same pin as Servo Driver
 #define PIEZOPORT   PORTB
 #define P1 PB7
 
 #define CLKFREQ 16000000
 #define PRESCALER 1024
 
-#define FREQ_SCALING (CLKFREQ/(PRESCALER*2))
+#define pace 1450
 
-const int c = 261;
-const int d = 294;
-const int e = 329;
-const int f = 349;
-const int g = 391;
-const int gS = 415;
-const int a = 440;
-const int aS = 455;
-const int b = 466;
-const int cH = 523;
-const int cSH = 554;
-const int dH = 587;
-const int dSH = 622;
-const int eH = 659;
-const int fH = 698;
-const int fSH = 740;
-const int gH = 784;
-const int gSH = 830;
-const int aH = 880;
-const int R = 0;
+#define restDuration 500
+
+#define FREQ_SCALING (CLKFREQ/(PRESCALER*2))
 
 
 
@@ -53,37 +37,71 @@ const int R = 0;
 //Max Frequency 15,625Hz
 //Min Frequency 122Hz
 
-//Prescaler 
 
-// CLEAN VARIABLES
+
+// Initialise timers and Counters
 
 int regTimer;
-
 uint16_t timerDuration;
 uint16_t songCounter;
+uint16_t restCounter;
+uint16_t durationCounter;
 
-uint16_t restDuration = 500;
+int on = 0;
+int initialised = 0;
 
-static uint16_t durationCounter;
-int restCounter = -1;
+int noNotes = 54;
+int note[] = {
+  /*NOTE_G4,NOTE_G4,NO_SOUND,NOTE_G4,NOTE_G4,NO_SOUND,NOTE_G4,NOTE_G4,NOTE_G4,NOTE_G4,NOTE_G4,
+   NOTE_B3,NOTE_G3,NOTE_C4,NOTE_G3,NOTE_CS4,NOTE_G3,NOTE_C4,NOTE_G3,NOTE_B3,NOTE_G3,NOTE_C4,NOTE_G3,NOTE_CS4,NOTE_G3,NOTE_C4,NOTE_G3,
+   NOTE_E4,NOTE_F4,NOTE_F4,NOTE_F4,NOTE_F4,NOTE_E4,NOTE_E4,NOTE_E4,
+   NOTE_E4,NOTE_G4,NOTE_G4,NOTE_G4,NOTE_G4,NOTE_E4,NOTE_E4,NOTE_E4,*/
+   //Introduction
+  NOTE_E4,NOTE_F4,NOTE_F4,NOTE_F4,NOTE_F4,NOTE_E4,NOTE_E4,NOTE_E4,
+  NOTE_E4,NOTE_G4,NOTE_G4,NOTE_G4,NOTE_G4,NOTE_E4,NOTE_E4,NOTE_E4,
+  NOTE_E4,NOTE_F4,NOTE_F4,NOTE_F4,NOTE_F4,NOTE_E4,NOTE_E4,NOTE_E4,
+  NOTE_E4,NOTE_G4,NOTE_G4,NOTE_G4,NOTE_G4,NOTE_E4,NOTE_E4,NOTE_E4,
+  NOTE_DS5,NOTE_D5,NOTE_B4,NOTE_A4,NOTE_B4,
+  NOTE_E4,NOTE_G4,NOTE_DS5,NOTE_D5,NOTE_G4,NOTE_B4,
+  NOTE_B4,NOTE_FS5,NOTE_F5,NOTE_B4,NOTE_D5,NOTE_AS5,
+  NOTE_A5,NOTE_F5,NOTE_A5,NOTE_DS6,NOTE_D6,NO_SOUND
+};
+int duration[] = {
+  /*8,8,2,8,8,2,16,8,16,8,8,
+   2,4,2,4,2,4,2,4,2,4,2,4,2,4,2,4,
+   8,16,16,8,4,8,8,8,
+   8,16,16,8,4,8,8,8,*/
+  8,16,16,8,4,8,8,8,
+  8,16,16,8,4,8,8,8,
+  8,16,16,8,4,8,8,8,
+  8,16,16,8,4,8,8,8,
+  8,2,8,8,1,
+  8,4,8,4,8,8,
+  8,8,4,8,4,8,
+  4,8,4,8,3
+};
 
 
-
-int noNotes = 17;
-int note[] = {440, 0, 440,0, 440,0, 349,0, 523,0, 440,0, 349,0, 523,0, 440};
-int duration[] = {500,500,500,500,500,500,350,500,150,500,500,500,350,500,150,500,650};
-
-
-void turn_on_piezo(void){
+void turn_on_pwm(void){
 	//Activate PWM
 	DDRB |= (1<<P1); //PWM (B7) output
 	PIEZOPORT |= (1<<P1);
 }
 
-void turn_off_piezo(void){
+void turn_off_pwm(void){
 	//Activate PWM
 	DDRB &= ~(1<<P1); //PWM (B7) output
 	PIEZOPORT &= ~(1<<P1);
+}
+
+void turn_off_piezo(void){
+	turn_off_pwm();
+	on = 0;
+	TIMSK0 &= ~(1 << TOIE0);
+}
+void  turn_on_piezo(void){
+	TIMSK0 |= (1 << TOIE0);
+	on = 1;
 }
 
 void set_frequency(int hertz, int duration){
@@ -93,16 +111,17 @@ void set_frequency(int hertz, int duration){
 		double den = hertz;
 		regTimer = (int)num/den;
 		OCR0A = regTimer;
-		turn_on_piezo();
+		turn_on_pwm();
 	}else{
-		turn_off_piezo();
+		turn_off_pwm();
 	}
 }
 
 void RDPiezo_Init(void){
 	durationCounter = 0;
 	songCounter = 0;
-	
+	restCounter = 0;
+	initialised = 1;
 
 	TCCR0A = 0x00; //Could be removed
 	TCCR0B = 0x00; //Could be removed
@@ -113,9 +132,6 @@ void RDPiezo_Init(void){
 	TCNT0 = 0x00; // Set counter to 0.
 	TIMSK0 |= (1 << TOIE0);
 	sei();
-	
-	set_frequency(note[songCounter],duration[songCounter]);
-	songCounter++;
 	
 }
 
@@ -135,31 +151,42 @@ int PWM_length(double milliseconds){
 
 
 ISR(TIMER0_OVF_vect) {
-	if(restCounter<0){
+	//If not on rest note
+	if(restCounter<=0){
+		//Wait till notes finished playing
 		++durationCounter;
 		if (durationCounter >= PWM_length(timerDuration)) {
 			durationCounter = 0;
+			restCounter = 1;
+			set_frequency(0,timerDuration*1.2);
+		}
+	}else{
+		restCounter++;
+		if(restCounter >= PWM_length(timerDuration)){
 			restCounter = 0;
 			if(songCounter < noNotes){
-				set_frequency(note[songCounter],duration[songCounter]);
+				set_frequency(note[songCounter],(pace/duration[songCounter]));
 				songCounter++;
 				
 			}else{
 				turn_off_piezo();
-				songCounter = 0;
 			}
-		}
-	}else{
-		restCounter++;
-		if(restCounter >= PWM_length(restDuration)){
-			restCounter = -1;
 		}
 	}
 }
 
 
-void play_tune(int songNo){
-	turn_on_piezo();
+
+
+void play_tune(){
+	songCounter = 0;
+	restCounter = 0;
+	if(initialised == 0){
+	   RDPiezo_Init();
+	}
+	if(on == 0){
+		turn_on_piezo();
+	}
 }
 
 
